@@ -14,7 +14,8 @@
   background: linear-gradient(135deg, var(--bg-dark) 0%, #1f1f1f 100%);
   position: relative;
   overflow-x: hidden;
-  z-index: 5;
+  z-index: 1;
+  transition: margin-left 0.3s ease;
 }
 
 .main-content {
@@ -25,7 +26,7 @@
   width: 100%;
   animation: fadeIn 0.3s ease;
   position: relative;
-  z-index: 6;
+  z-index: 2;
   pointer-events: auto;
 }
 
@@ -41,6 +42,7 @@
     width: 100%;
     touch-action: pan-x pan-y;
     -webkit-overflow-scrolling: touch;
+    padding-top: 4rem; /* Espaço para o botão do menu */
   }
 }
 

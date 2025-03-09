@@ -9,8 +9,9 @@
   overflow-y: auto;
   transition: all 0.3s ease;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 4;
+  z-index: 1000;
   pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Quando o sidebar estiver fechado em dispositivos móveis */
@@ -125,7 +126,7 @@
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 7;
+  z-index: 1001;
   min-width: 44px;
   min-height: 44px;
   padding: 12px;
@@ -151,7 +152,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 3;
+  z-index: 999;
   backdrop-filter: blur(2px);
   transition: all 0.3s ease;
   opacity: 0;
@@ -186,11 +187,11 @@
   }
 
   .menu-item {
-    padding: 0.875rem 1rem;
+    padding: 1rem 1.5rem;
   }
 
   .menu-text {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 }
 
@@ -203,14 +204,15 @@
 
   .menu-item {
     min-height: 44px;
-    padding: 12px;
+    padding: 12px 1.5rem;
+    display: flex;
+    align-items: center;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
 
   .menu-item:active {
-    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.1);
     transform: scale(0.98);
-    transition: all 0.1s ease;
   }
 } 

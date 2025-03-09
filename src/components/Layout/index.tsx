@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Header from '../Header/index';
@@ -12,10 +12,15 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { dadosEmpresa } = useEmpresa();
   const currentYear = new Date().getFullYear();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="layout">
-      <Sidebar />
+      <Sidebar isOpen={isMenuOpen} onToggle={toggleMenu} />
       <div className="main-wrapper">
         <Header />
         <main className="main-content">

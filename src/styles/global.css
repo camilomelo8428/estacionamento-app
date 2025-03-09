@@ -340,4 +340,39 @@ select,
   .form-group select {
     margin-top: 8px;
   }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  * {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a,
+  .menu-item,
+  .clickable {
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .menu-item:active,
+  button:active,
+  a:active,
+  .clickable:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Prevenir scroll não intencional quando o menu está aberto */
+  body.menu-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
 } 
