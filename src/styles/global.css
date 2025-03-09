@@ -38,6 +38,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  touch-action: manipulation;
 }
 
 body {
@@ -47,6 +52,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Botões padrão */
@@ -59,6 +65,9 @@ body {
   border: none;
   outline: none;
   font-family: inherit;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .btn-primary {
@@ -128,6 +137,35 @@ body {
 .badge-danger {
   background: var(--danger-light);
   color: var(--danger);
+}
+
+/* Dispositivos touch */
+@media (hover: none) {
+  .btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Desativar efeitos hover em dispositivos touch */
+  *:hover {
+    transform: none !important;
+  }
+}
+
+/* Melhorias para touch em elementos clicáveis */
+button, 
+a, 
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
 /* Scrollbar personalizada */

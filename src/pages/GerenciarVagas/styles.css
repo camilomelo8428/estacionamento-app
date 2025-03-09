@@ -1830,4 +1830,80 @@
   color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.4;
+}
+
+/* Ajustes para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .btn-configurar-vagas,
+  .btn-limpar-tickets {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-configurar-vagas:active,
+  .btn-limpar-tickets:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  .vaga-button:active {
+    transform: scale(0.98);
+  }
+
+  .vaga-button.livre:active {
+    background: var(--success);
+  }
+
+  .vaga-button.ocupada:active {
+    background: var(--danger);
+  }
+
+  .vaga-button.mensalista:active {
+    background: var(--warning);
+  }
+
+  .btn-configurar-vagas:hover,
+  .btn-limpar-tickets:hover,
+  .vaga-button:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+  .gerenciar-container {
+    padding: 1rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-configurar-vagas,
+  .btn-limpar-tickets {
+    width: 100%;
+  }
+
+  .vagas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .vaga-button {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .vaga-button .placa {
+    font-size: 0.75rem;
+  }
+
+  .btn-close,
+  .btn-confirmar,
+  .btn-cancelar {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
 } 
