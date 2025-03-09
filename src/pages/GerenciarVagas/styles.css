@@ -260,168 +260,129 @@
 }
 
 .vaga-button {
-  position: relative;
-  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: var(--border-radius);
   border: none;
-  border-radius: 16px;
-  font-size: 1.2rem;
-  font-weight: 700;
+  background: var(--bg-medium);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+  transition: var(--transition);
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transform-style: preserve-3d;
-  animation: cardEntrance 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
-}
-
-.vaga-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
   z-index: 1;
 }
 
-.vaga-button:hover::before {
-  opacity: 1;
-}
-
 .vaga-button.livre {
-  background: linear-gradient(145deg, #4CAF50, #45a049);
-  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3),
-              inset 0 0 32px rgba(255, 255, 255, 0.1);
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .vaga-button.ocupada {
-  background: linear-gradient(145deg, #f44336, #d32f2f);
-  box-shadow: 0 8px 16px rgba(244, 67, 54, 0.3),
-              inset 0 0 32px rgba(255, 255, 255, 0.1);
+  background: var(--danger-light);
+  color: var(--danger);
 }
 
 .vaga-button.mensalista {
-  background: linear-gradient(145deg, #2196F3, #1976D2);
-  box-shadow: 0 8px 16px rgba(33, 150, 243, 0.3),
-              inset 0 0 32px rgba(255, 255, 255, 0.1);
+  background: var(--warning-light);
+  color: var(--warning);
 }
 
-.vaga-button:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4),
-              inset 0 0 40px rgba(255, 255, 255, 0.2);
-}
-
-.vaga-button:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2),
-              inset 0 0 20px rgba(255, 255, 255, 0.1);
-}
-
-.vaga-button .placa {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  display: inline-block;
-  transform: translateZ(20px);
-  text-shadow: none;
-}
-
-/* Efeito de brilho ao passar o mouse */
-@keyframes shine {
-  0% {
-    background-position: -100% 50%;
+/* Ajustes para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .vaga-button,
+  .btn-configurar-vagas,
+  .btn-limpar-tickets,
+  .btn-ajustar,
+  .btn-fechar {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    min-height: 44px;
+    min-width: 44px;
   }
-  100% {
-    background-position: 200% 50%;
-  }
-}
 
-.vaga-button::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transform: rotate(45deg);
-  animation: shine 3s infinite;
-  pointer-events: none;
-}
+  .vaga-button:active,
+  .btn-configurar-vagas:active,
+  .btn-limpar-tickets:active,
+  .btn-ajustar:active,
+  .btn-fechar:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
 
-/* Efeito de pulso para vagas ocupadas */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 8px 16px rgba(244, 67, 54, 0.3);
+  .vaga-button.livre:active {
+    background: var(--success);
+    color: white;
   }
-  50% {
-    box-shadow: 0 8px 24px rgba(244, 67, 54, 0.5);
+
+  .vaga-button.ocupada:active {
+    background: var(--danger);
+    color: white;
   }
-  100% {
-    box-shadow: 0 8px 16px rgba(244, 67, 54, 0.3);
+
+  .vaga-button.mensalista:active {
+    background: var(--warning);
+    color: white;
+  }
+
+  /* Desativar todos os efeitos hover */
+  .vaga-button:hover,
+  .btn-configurar-vagas:hover,
+  .btn-limpar-tickets:hover,
+  .btn-ajustar:hover,
+  .btn-fechar:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background: inherit;
   }
 }
 
-.vaga-button.ocupada {
-  animation: pulse 2s infinite;
-}
-
-/* Ajustes para dispositivos móveis */
+/* Ajustes responsivos */
 @media (max-width: 768px) {
+  .gerenciar-container {
+    padding: 1rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-configurar-vagas,
+  .btn-limpar-tickets,
+  .btn-ajustar,
+  .btn-fechar {
+    width: 100%;
+    margin: 0.5rem 0;
+    min-height: 44px;
+    padding: 12px;
+  }
+
   .vagas-grid {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 0.75rem;
   }
 
   .vaga-button {
-    min-height: 80px;
-    font-size: 1rem;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    min-height: 60px;
   }
 
   .vaga-button .placa {
-    font-size: 0.8rem;
-    padding: 0.2rem 0.4rem;
-  }
-}
-
-/* Animação de entrada dos cards */
-@keyframes cardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Efeito de hover suave para dispositivos touch */
-@media (hover: none) {
-  .vaga-button:hover {
-    transform: none;
-    box-shadow: none;
-  }
-  
-  .vaga-button:active {
-    transform: scale(0.95);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
   }
 }
 

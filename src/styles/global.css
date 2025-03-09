@@ -41,8 +41,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html {
-  touch-action: manipulation;
+html, body {
+  touch-action: pan-x pan-y;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -52,7 +55,6 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 /* Botões padrão */
@@ -68,6 +70,12 @@ body {
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
+  z-index: 1;
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -140,20 +148,32 @@ body {
 }
 
 /* Dispositivos touch */
-@media (hover: none) {
-  .btn:hover {
-    transform: none;
-    box-shadow: none;
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  button,
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"] {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    min-height: 44px;
+    min-width: 44px;
   }
 
-  .btn:active {
+  .btn:active,
+  button:active,
+  [role="button"]:active {
     transform: scale(0.98);
     opacity: 0.9;
   }
 
-  /* Desativar efeitos hover em dispositivos touch */
+  /* Remover todos os efeitos hover em dispositivos touch */
   *:hover {
     transform: none !important;
+    box-shadow: none !important;
   }
 }
 
@@ -166,6 +186,7 @@ input[type="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
+  min-height: 44px;
 }
 
 /* Scrollbar personalizada */
