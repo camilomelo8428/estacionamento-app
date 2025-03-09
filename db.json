@@ -1,0 +1,31 @@
+{
+  "vagas": [
+    {
+      "id": 1,
+      "numero": "A01",
+      "status": "LIVRE",
+      "placa": null,
+      "horaEntrada": null,
+      "horaSaida": null,
+      "valorCobrado": null
+    },
+    {
+      "id": 2,
+      "numero": "A02",
+      "status": "LIVRE",
+      "placa": null,
+      "horaEntrada": null,
+      "horaSaida": null,
+      "valorCobrado": null
+    },
+    {
+      "id": 3,
+      "numero": "A03",
+      "status": "OCUPADA",
+      "placa": "ABC1234",
+      "horaEntrada": "2024-02-27T19:00:00.000Z",
+      "horaSaida": null,
+      "valorCobrado": null
+    }
+  ]
+} 

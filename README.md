@@ -1,46 +1,94 @@
-# Getting Started with Create React App
+# Sistema de Gerenciamento de Estacionamento
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sistema web completo para gerenciamento de estacionamentos, desenvolvido com React, TypeScript e Supabase.
 
-## Available Scripts
+## Funcionalidades
 
-In the project directory, you can run:
+- Dashboard financeiro com gráficos e métricas
+- Gestão de vagas em tempo real
+- Controle de mensalistas
+- Emissão de tickets
+- Relatórios financeiros
+- Gestão de funcionários
+- Configurações do estabelecimento
 
-### `npm start`
+## Tecnologias Utilizadas
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- React 18
+- TypeScript
+- Supabase (Backend as a Service)
+- Ant Design (UI Components)
+- Recharts (Gráficos)
+- React Router DOM
+- Context API
+- CSS Modules
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Pré-requisitos
 
-### `npm test`
+- Node.js 16+
+- npm ou yarn
+- Conta no Supabase
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Configuração do Ambiente
 
-### `npm run build`
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/estacionamento-app.git
+cd estacionamento-app
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Instale as dependências:
+```bash
+npm install
+# ou
+yarn install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env.local` na raiz do projeto e adicione:
+```env
+REACT_APP_SUPABASE_URL=sua_url_do_supabase
+REACT_APP_SUPABASE_ANON_KEY=sua_chave_anon_do_supabase
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. Inicie o servidor de desenvolvimento:
+```bash
+npm start
+# ou
+yarn start
+```
 
-### `npm run eject`
+## Deploy
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+O projeto está configurado para deploy automático na Vercel.
+Cada push na branch main dispara um novo deploy automaticamente.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Estrutura do Projeto
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+src/
+  ├── components/     # Componentes reutilizáveis
+  ├── contexts/       # Contextos React
+  ├── hooks/         # Custom hooks
+  ├── pages/         # Páginas da aplicação
+  ├── services/      # Serviços e APIs
+  ├── styles/        # Estilos globais
+  ├── types/         # Tipos TypeScript
+  └── utils/         # Funções utilitárias
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Contribuição
 
-## Learn More
+1. Faça um Fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Licença
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## Suporte
+
+Para suporte, envie um email para seu-email@exemplo.com ou abra uma issue no GitHub.

@@ -1,0 +1,104 @@
+.configuracoes-container {
+  padding: 2rem;
+}
+
+.configuracoes-container h1 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.configuracoes-container p {
+  color: var(--text-secondary);
+}
+
+.configuracoes-multa {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.configuracoes-multa h2 {
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.configuracoes-multa .form-group {
+  margin-bottom: 20px;
+}
+
+.configuracoes-multa label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.configuracoes-multa input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.configuracoes-multa small {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.configuracoes-multa .btn-salvar {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.configuracoes-multa .btn-salvar:hover {
+  background-color: #45a049;
+}
+
+.exemplo-calculo {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.exemplo-calculo h3 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.exemplo-calculo p {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.exemplo-calculo ul {
+  list-style: none;
+  padding: 0;
+}
+
+.exemplo-calculo li {
+  margin: 5px 0;
+  color: #666;
+}
+
+/* Estilos para os campos de informação de multa na lista de mensalidades */
+.info-atraso {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.info-multa,
+.info-juros {
+  color: #e67e22;
+  margin-top: 5px;
+} 

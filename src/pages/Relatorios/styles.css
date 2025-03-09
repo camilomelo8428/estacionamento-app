@@ -1,0 +1,12 @@
+.relatorios-container {
+  padding: 2rem;
+}
+
+.relatorios-container h1 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.relatorios-container p {
+  color: var(--text-secondary);
+} 

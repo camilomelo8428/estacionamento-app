@@ -1,0 +1,184 @@
+/* Estilos gerais */
+.ticket-impressao {
+  width: 70mm; /* Reduzido para garantir margem de segurança */
+  margin: 0 auto;
+  padding: 0;
+  background: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.ticket-content {
+  text-align: center;
+  width: 100%;
+}
+
+.ticket-header {
+  margin-bottom: 2mm;
+  padding-bottom: 2mm;
+  border-bottom: 1px dashed #000;
+  width: 100%;
+}
+
+.ticket-header h1 {
+  font-size: 14px;
+  margin: 0 0 1mm;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-header p {
+  font-size: 12px;
+  margin: 0.5mm 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-info {
+  margin: 2mm 0;
+  text-align: left;
+  width: 100%;
+}
+
+.ticket-info h2 {
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5mm 0;
+  width: 100%;
+}
+
+.info-row .label {
+  width: 35%;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-row .value {
+  width: 65%;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-footer {
+  margin-top: 2mm;
+  padding-top: 2mm;
+  border-top: 1px dashed #000;
+  text-align: center;
+  width: 100%;
+}
+
+.ticket-footer p {
+  font-size: 10px;
+  margin: 0.5mm 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-numero {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 2mm;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-imprimir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-imprimir:hover {
+  background: #1976D2;
+}
+
+/* Estilos específicos para impressão */
+@media print {
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .ticket-impressao,
+  .ticket-impressao * {
+    visibility: visible;
+  }
+
+  .ticket-impressao {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 70mm;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .btn-imprimir {
+    display: none;
+  }
+
+  * {
+    font-family: monospace !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .ticket-header h1 {
+    font-size: 14px;
+  }
+
+  .ticket-header p {
+    font-size: 12px;
+  }
+
+  .info-row {
+    font-size: 12px;
+  }
+
+  .ticket-footer p {
+    font-size: 10px;
+  }
+
+  .ticket-numero {
+    font-size: 12px;
+  }
+} 
