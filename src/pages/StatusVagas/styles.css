@@ -296,4 +296,66 @@
   .vaga-item {
     font-size: 0.75rem;
   }
+}
+
+/* Ajustes para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .status-vagas-container {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vagas-grid {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    touch-action: manipulation;
+  }
+
+  .vaga-item {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .vaga-item:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.1s ease !important;
+  }
+
+  .vaga-item.livre:active {
+    background: var(--success);
+  }
+
+  .vaga-item.ocupada:active {
+    background: var(--danger);
+  }
+
+  .categoria-section {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .categoria-section:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  .legenda-item {
+    min-height: 44px;
+    padding: 8px 12px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .legenda-item:active {
+    background: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.1s ease;
+  }
 } 

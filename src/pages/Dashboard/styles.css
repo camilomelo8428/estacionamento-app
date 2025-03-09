@@ -774,4 +774,119 @@
   transform: translateZ(25px);
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajustes para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .dashboard-container {
+    touch-action: manipulation;
+  }
+
+  .dashboard-header {
+    padding: 16px;
+  }
+
+  .relatorio-container {
+    padding: 16px;
+  }
+
+  .periodo-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .data-group {
+    width: 100%;
+  }
+
+  .data-input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .btn-atualizar,
+  .btn-gerar-relatorio {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+  }
+
+  .chart-container {
+    touch-action: pan-x pan-y;
+  }
+
+  .recharts-wrapper {
+    touch-action: pan-x pan-y;
+  }
+
+  .dashboard-card {
+    touch-action: manipulation;
+  }
+
+  .dashboard-card:active {
+    transform: scale(0.98);
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+}
+
+/* Melhorar suporte a touch em gráficos */
+@media (hover: none) and (pointer: coarse) {
+  .dashboard-card {
+    min-height: 120px;
+    padding: 16px;
+  }
+
+  .dashboard-card:hover {
+    transform: none;
+    box-shadow: var(--box-shadow);
+  }
+
+  .dashboard-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  .chart-filter {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+    margin: 4px;
+  }
+
+  .chart-filter:hover {
+    background: none;
+  }
+
+  .chart-filter:active {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .chart-wrapper,
+  .recharts-wrapper {
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+
+  .dashboard-table td,
+  .dashboard-table th {
+    min-height: 44px;
+    padding: 12px;
+  }
+
+  .dashboard-actions button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+    margin: 4px;
+  }
+
+  .dashboard-actions button:hover {
+    transform: none;
+  }
+
+  .dashboard-actions button:active {
+    transform: scale(0.96);
+  }
 } 
