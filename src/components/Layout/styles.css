@@ -2,6 +2,7 @@
   display: flex;
   min-height: 100vh;
   background: var(--bg-dark);
+  position: relative;
 }
 
 .main-wrapper {
@@ -13,6 +14,7 @@
   background: linear-gradient(135deg, var(--bg-dark) 0%, #1f1f1f 100%);
   position: relative;
   overflow-x: hidden;
+  z-index: 5;
 }
 
 .main-content {
@@ -22,16 +24,38 @@
   margin: 0 auto;
   width: 100%;
   animation: fadeIn 0.3s ease;
+  position: relative;
+  z-index: 6;
+  pointer-events: auto;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
   .main-wrapper {
     margin-left: 0;
+    width: 100%;
   }
 
   .main-content {
     padding: 1rem;
+    width: 100%;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Ajustes para touch */
+@media (hover: none) and (pointer: coarse) {
+  .main-wrapper {
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
+  }
+
+  .main-content {
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
   }
 }
 
