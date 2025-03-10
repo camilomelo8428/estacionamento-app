@@ -22,20 +22,11 @@ interface ImprimirTicketProps {
 }
 
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
-  const [metodoImpressao, setMetodoImpressao] = useState<'pdf' | 'epson' | 'share'>('pdf');
-  const [isMobile, setIsMobile] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      setIsMobile(mobile);
-      if (mobile) {
-        setMetodoImpressao('share');
-      }
-    };
-
-    checkMobile();
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent));
   }, []);
 
   const formatarData = (data: string) => {
@@ -65,20 +56,20 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         type: 'ticket',
         content: conteudo,
         options: {
-          method: isMobile ? 'share' : metodoImpressao,
+          method: 'pdf',
           paperSize: 'A4',
           orientation: 'portrait'
         }
       });
 
       if (resultado) {
-        toast.success(isMobile ? 'Ticket pronto para compartilhamento' : 'Ticket gerado com sucesso');
+        toast.success(isMobile ? 'Ticket pronto para visualização' : 'Ticket gerado com sucesso');
       } else {
-        throw new Error('Falha ao processar o ticket');
+        throw new Error('Falha ao gerar o ticket');
       }
     } catch (error) {
       console.error('Erro ao processar ticket:', error);
-      toast.error('Não foi possível processar o ticket. Tente novamente.');
+      toast.error('Não foi possível gerar o ticket. Tente novamente.');
     } finally {
       setIsProcessing(false);
     }
@@ -129,19 +120,6 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
       </div>
 
       <div className="print-actions">
-        {!isMobile && (
-          <select 
-            value={metodoImpressao} 
-            onChange={(e) => setMetodoImpressao(e.target.value as 'pdf' | 'epson' | 'share')}
-            className="print-method"
-            disabled={isProcessing}
-          >
-            <option value="pdf">Gerar PDF</option>
-            <option value="epson">Impressora Epson</option>
-            <option value="share">Compartilhar</option>
-          </select>
-        )}
-
         <button 
           className="btn-imprimir"
           onClick={handleImprimir}
@@ -150,8 +128,8 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
           {isProcessing 
             ? 'Processando...' 
             : isMobile 
-              ? 'Compartilhar Ticket' 
-              : 'Imprimir Ticket'
+              ? 'Visualizar Ticket' 
+              : 'Gerar Ticket'
           }
         </button>
       </div>

@@ -19,7 +19,7 @@ class PrintService {
   private defaultOptions: PrintOptions = {
     method: 'pdf',
     orientation: 'portrait',
-    paperSize: '80mm'
+    paperSize: 'A4'
   };
 
   private constructor() {}
@@ -33,96 +33,17 @@ class PrintService {
 
   async print(data: PrintData): Promise<boolean> {
     try {
-      const options = { ...this.defaultOptions, ...data.options };
-      
-      switch (options.method) {
-        case 'epson':
-          return await this.printViaEpson(data);
-        case 'share':
-          return await this.printViaShare(data);
-        case 'direct':
-          return await this.printDirect(data);
-        case 'pdf':
-        default:
-          return await this.generatePDF(data);
-      }
-    } catch (error) {
-      console.error('Erro ao imprimir:', error);
-      return false;
-    }
-  }
-
-  private async printViaEpson(data: PrintData): Promise<boolean> {
-    try {
-      const escposCommands = this.generateESCPOS(data);
-      return true;
-    } catch (error) {
-      console.error('Erro na impressão Epson:', error);
-      return false;
-    }
-  }
-
-  private async printViaShare(data: PrintData): Promise<boolean> {
-    try {
-      // Gerar PDF como base64 string
       const doc = this.createPDFDocument(data);
-      const pdfBase64 = doc.output('datauristring');
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
 
-      // Criar Blob a partir do base64
-      const base64Data = pdfBase64.split(',')[1];
-      const binaryData = atob(base64Data);
-      const byteArray = new Uint8Array(binaryData.length);
-      for (let i = 0; i < binaryData.length; i++) {
-        byteArray[i] = binaryData.charCodeAt(i);
-      }
-      const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
-
-      if ('share' in navigator) {
-        const file = new File([pdfBlob], 'ticket.pdf', { type: 'application/pdf' });
-        await navigator.share({
-          files: [file],
-          title: 'Ticket de Estacionamento',
-          text: 'Seu ticket de estacionamento'
-        });
-        return true;
-      } else {
-        // Fallback: Abrir em nova aba
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        window.open(pdfUrl, '_blank');
-        setTimeout(() => URL.revokeObjectURL(pdfUrl), 100);
-        return true;
-      }
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-      if (error instanceof Error && error.name === 'AbortError') {
-        // Usuário cancelou o compartilhamento
-        return true;
-      }
-      return false;
-    }
-  }
-
-  private async printDirect(data: PrintData): Promise<boolean> {
-    return false;
-  }
-
-  private async generatePDF(data: PrintData): Promise<boolean> {
-    try {
-      const doc = this.createPDFDocument(data);
-      const pdfBase64 = doc.output('datauristring');
+      // Em dispositivos móveis, abrir em nova aba para usar o visualizador nativo
+      window.open(pdfUrl, '_blank');
       
-      // Criar iframe temporário para exibir o PDF
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = pdfBase64;
-      document.body.appendChild(iframe);
-
-      // Remover iframe após carregar
-      iframe.onload = () => {
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 100);
-      };
+      // Limpar a URL após um breve delay
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 1000);
 
       return true;
     } catch (error) {
@@ -132,82 +53,90 @@ class PrintService {
   }
 
   private createPDFDocument(data: PrintData): jsPDF {
-    // Definir dimensões do papel
-    const width = 210; // Largura A4 em mm
-    const height = 297; // Altura A4 em mm
-
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [width, height]
+      format: 'a4'
     });
 
     // Configurar fonte
     doc.setFont('helvetica');
-    doc.setFontSize(12);
-
+    
+    // Calcular margens e largura útil
+    const pageWidth = doc.internal.pageSize.width;
     const margin = 20;
+    const usableWidth = pageWidth - (2 * margin);
     let yPos = margin;
 
     // Cabeçalho da empresa
     doc.setFontSize(16);
-    doc.text(data.content.empresa.nome, width / 2, yPos, { align: 'center' });
+    doc.text(data.content.empresa.nome, pageWidth / 2, yPos, { align: 'center' });
     yPos += 10;
 
     doc.setFontSize(12);
-    doc.text(data.content.empresa.endereco, width / 2, yPos, { align: 'center' });
-    yPos += 8;
+    const enderecoLines = doc.splitTextToSize(data.content.empresa.endereco, usableWidth);
+    doc.text(enderecoLines, pageWidth / 2, yPos, { align: 'center' });
+    yPos += (enderecoLines.length * 6) + 4;
 
     if (data.content.empresa.telefone) {
-      doc.text(`Tel: ${data.content.empresa.telefone}`, width / 2, yPos, { align: 'center' });
+      doc.text(`Tel: ${data.content.empresa.telefone}`, pageWidth / 2, yPos, { align: 'center' });
       yPos += 8;
     }
 
     if (data.content.empresa.cnpj) {
-      doc.text(`CNPJ: ${data.content.empresa.cnpj}`, width / 2, yPos, { align: 'center' });
-      yPos += 15;
+      doc.text(`CNPJ: ${data.content.empresa.cnpj}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 12;
     }
 
     // Linha divisória
     doc.setLineWidth(0.5);
-    doc.line(margin, yPos, width - margin, yPos);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 10;
 
     // Título do ticket
     doc.setFontSize(14);
-    doc.text('TICKET DE ESTACIONAMENTO', width / 2, yPos, { align: 'center' });
+    doc.text('TICKET DE ESTACIONAMENTO', pageWidth / 2, yPos, { align: 'center' });
     yPos += 15;
 
-    // Informações do ticket
+    // Informações do ticket em formato de tabela
     doc.setFontSize(12);
-    const infoLines = [
-      ['Placa:', data.content.placa],
-      ['Modelo:', data.content.modelo],
-      ['Cor:', data.content.cor],
-      ['Vaga:', data.content.vaga],
-      ['Entrada:', data.content.entrada]
+    const tableData = [
+      ['Placa', data.content.placa],
+      ['Modelo', data.content.modelo],
+      ['Cor', data.content.cor],
+      ['Vaga', data.content.vaga],
+      ['Entrada', data.content.entrada]
     ];
 
-    infoLines.forEach(([label, value]) => {
-      const text = `${label} ${value}`;
-      doc.text(text, width / 2, yPos, { align: 'center' });
-      yPos += 8;
+    // Configurar a tabela
+    (doc as any).autoTable({
+      startY: yPos,
+      head: [],
+      body: tableData,
+      theme: 'plain',
+      styles: {
+        fontSize: 12,
+        cellPadding: 5,
+        lineWidth: 0.1
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 40 },
+        1: { cellWidth: 'auto' }
+      },
+      margin: { left: margin, right: margin }
     });
 
+    // Obter a posição Y final da tabela
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+
     // Linha divisória final
-    yPos += 5;
-    doc.line(margin, yPos, width - margin, yPos);
-    yPos += 10;
+    doc.line(margin, finalY, pageWidth - margin, finalY);
 
     // Rodapé
     doc.setFontSize(10);
-    doc.text('Obrigado pela preferência!', width / 2, yPos, { align: 'center' });
+    doc.text('Obrigado pela preferência!', pageWidth / 2, finalY + 10, { align: 'center' });
 
     return doc;
-  }
-
-  private generateESCPOS(data: PrintData): Uint8Array {
-    return new Uint8Array();
   }
 }
 
