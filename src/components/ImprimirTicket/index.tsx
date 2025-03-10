@@ -44,28 +44,36 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const handleImprimir = async () => {
     try {
       const conteudo = {
-        ...ticket,
-        hora_entrada: formatarData(ticket.hora_entrada),
-        empresa
+        placa: ticket.placa,
+        modelo: ticket.modelo,
+        cor: ticket.cor,
+        vaga: ticket.vaga,
+        entrada: formatarData(ticket.hora_entrada),
+        empresa: {
+          nome: empresa.nome,
+          endereco: empresa.endereco,
+          telefone: empresa.telefone,
+          cnpj: empresa.cnpj
+        }
       };
 
       const resultado = await printService.print({
         type: 'ticket',
         content: conteudo,
         options: {
-          method: metodoImpressao,
-          paperSize: metodoImpressao === 'epson' ? '80mm' : 'A4'
+          method: isMobile ? 'share' : metodoImpressao,
+          paperSize: '80mm'
         }
       });
 
       if (resultado) {
-        toast.success('Ticket enviado para impressão');
+        toast.success(isMobile ? 'Ticket pronto para compartilhamento' : 'Ticket enviado para impressão');
       } else {
-        toast.error('Erro ao imprimir ticket');
+        toast.error('Erro ao processar o ticket');
       }
     } catch (error) {
-      console.error('Erro ao imprimir:', error);
-      toast.error('Erro ao imprimir ticket');
+      console.error('Erro ao processar ticket:', error);
+      toast.error('Erro ao processar o ticket');
     }
   };
 

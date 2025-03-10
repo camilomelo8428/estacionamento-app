@@ -58,11 +58,9 @@ class PrintService {
       const blob = new Blob([escposContent], { type: 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       
-      // Tenta abrir o app Epson
       if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         window.location.href = `intent://${url}#Intent;scheme=epson;package=com.epson.epos2_printer;end;`;
       } else {
-        // Fallback para download em desktop
         const a = document.createElement('a');
         a.href = url;
         a.download = 'impressao.prn';
@@ -81,26 +79,22 @@ class PrintService {
       const pdfBlob = await this.generatePDFBlob(data);
       
       if (navigator.share && navigator.canShare) {
-        const file = new File([pdfBlob], 'documento.pdf', { type: 'application/pdf' });
+        const file = new File([pdfBlob], 'ticket.pdf', { type: 'application/pdf' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'Compartilhar documento',
+            title: 'Compartilhar Ticket',
           });
           return true;
         }
       }
       
-      // Fallback para download ou visualização
       const url = window.URL.createObjectURL(pdfBlob);
-      if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = url;
-      } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'documento.pdf';
-        a.click();
-      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.click();
       
       return true;
     } catch (error) {
@@ -119,12 +113,13 @@ class PrintService {
       const pdfBlob = await this.generatePDFBlob(data);
       const url = window.URL.createObjectURL(pdfBlob);
       
-      // Tratamento específico para dispositivos móveis
-      if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = url;
-      } else {
-        window.open(url, '_blank');
-      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       
       return true;
     } catch (error) {
@@ -135,118 +130,60 @@ class PrintService {
 
   private async generatePDFBlob(data: PrintData): Promise<Blob> {
     const doc = new jsPDF({
-      orientation: data.options?.orientation || 'portrait',
+      orientation: 'portrait',
       unit: 'mm',
-      format: data.options?.paperSize || 'A4'
+      format: [80, 150]
     });
 
-    switch (data.type) {
-      case 'ticket':
-        this.formatTicket(doc, data.content);
-        break;
-      case 'receipt':
-        this.formatReceipt(doc, data.content);
-        break;
-      case 'report':
-        this.formatReport(doc, data.content);
-        break;
+    doc.setFontSize(10);
+    
+    const { empresa, ...ticketInfo } = data.content;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(empresa.nome, 40, 10, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text(empresa.endereco, 40, 15, { align: 'center' });
+    doc.text(`Tel: ${empresa.telefone}`, 40, 20, { align: 'center' });
+    if (empresa.cnpj) {
+      doc.text(`CNPJ: ${empresa.cnpj}`, 40, 25, { align: 'center' });
     }
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TICKET DE ESTACIONAMENTO', 40, 35, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    let y = 45;
+    
+    Object.entries(ticketInfo).forEach(([key, value]) => {
+      if (key !== 'empresa') {
+        const label = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ') + ':';
+        doc.text(label, 10, y);
+        doc.text(String(value), 70, y, { align: 'right' });
+        y += 5;
+      }
+    });
+
+    doc.setFontSize(8);
+    doc.text('Obrigado pela preferência!', 40, y + 10, { align: 'center' });
 
     return doc.output('blob');
   }
 
   private generateESCPOS(data: PrintData): Uint8Array {
-    // Implementação da geração de comandos ESC/POS
-    // Aqui você implementaria a lógica específica para sua impressora
     const encoder = new TextEncoder();
     let commands = '';
-
-    switch (data.type) {
-      case 'ticket':
-        commands = this.formatTicketESCPOS(data.content);
-        break;
-      case 'receipt':
-        commands = this.formatReceiptESCPOS(data.content);
-        break;
-      case 'report':
-        commands = this.formatReportESCPOS(data.content);
-        break;
-    }
-
-    return encoder.encode(commands);
-  }
-
-  private formatTicket(doc: jsPDF, content: any) {
-    // Implementação da formatação do ticket em PDF
-  }
-
-  private formatReceipt(doc: jsPDF, content: any) {
-    // Implementação da formatação do recibo em PDF
-  }
-
-  private formatReport(doc: jsPDF, content: any) {
-    // Implementação da formatação do relatório em PDF
-  }
-
-  private formatTicketESCPOS(content: any): string {
-    const { placa, modelo, cor, hora_entrada, vaga, empresa } = content;
     
-    // Comandos ESC/POS para formatação do ticket
-    let commands = '';
+    const { empresa, ...ticketInfo } = data.content;
     
-    // Inicialização
-    commands += '\x1B\x40'; // Initialize printer
-    commands += '\x1B\x61\x01'; // Center alignment
+    commands += '\x1B\x40';
+    commands += '\x1B\x61\x01';
     
-    // Cabeçalho
-    commands += '\x1B\x21\x08'; // Emphasized mode
+    commands += '\x1B\x21\x08';
     commands += `${empresa.nome}\n`;
-    commands += '\x1B\x21\x00'; // Normal mode
-    commands += `${empresa.endereco}\n`;
-    commands += `Tel: ${empresa.telefone}\n\n`;
-    
-    // Título
-    commands += '\x1B\x21\x10'; // Double-height mode
-    commands += 'TICKET DE ESTACIONAMENTO\n\n';
-    commands += '\x1B\x21\x00'; // Normal mode
-    
-    // Informações do veículo
-    commands += '\x1B\x61\x00'; // Left alignment
-    commands += `Placa: ${placa}\n`;
-    commands += `Modelo: ${modelo}\n`;
-    commands += `Cor: ${cor}\n`;
-    commands += `Vaga: ${vaga}\n`;
-    commands += `Entrada: ${hora_entrada}\n\n`;
-    
-    // Rodapé
-    commands += '\x1B\x61\x01'; // Center alignment
-    commands += '--------------------------------\n';
-    commands += 'Obrigado pela preferência!\n';
-    commands += '--------------------------------\n\n';
-    
-    // Corte do papel
-    commands += '\x1B\x69'; // Cut paper
-    
-    return commands;
-  }
-
-  private formatReceiptESCPOS(content: any): string {
-    const { 
-      placa, modelo, cor, vaga, hora_entrada, hora_saida,
-      valor, tempo_total, empresa 
-    } = content;
-    
-    // Comandos ESC/POS para formatação do recibo
-    let commands = '';
-    
-    // Inicialização
-    commands += '\x1B\x40'; // Initialize printer
-    commands += '\x1B\x61\x01'; // Center alignment
-    
-    // Cabeçalho
-    commands += '\x1B\x21\x08'; // Emphasized mode
-    commands += `${empresa.nome}\n`;
-    commands += '\x1B\x21\x00'; // Normal mode
+    commands += '\x1B\x21\x00';
     commands += `${empresa.endereco}\n`;
     commands += `Tel: ${empresa.telefone}\n`;
     if (empresa.cnpj) {
@@ -254,43 +191,27 @@ class PrintService {
     }
     commands += '\n';
     
-    // Título
-    commands += '\x1B\x21\x10'; // Double-height mode
-    commands += 'RECIBO DE PAGAMENTO\n\n';
-    commands += '\x1B\x21\x00'; // Normal mode
+    commands += '\x1B\x21\x10';
+    commands += 'TICKET DE ESTACIONAMENTO\n\n';
+    commands += '\x1B\x21\x00';
     
-    // Informações do veículo
-    commands += '\x1B\x61\x00'; // Left alignment
-    commands += `Placa: ${placa}\n`;
-    commands += `Modelo: ${modelo}\n`;
-    commands += `Cor: ${cor}\n`;
-    commands += `Vaga: ${vaga}\n`;
-    commands += `Entrada: ${hora_entrada}\n`;
-    commands += `Saída: ${hora_saida}\n`;
-    commands += `Tempo total: ${tempo_total}\n\n`;
+    commands += '\x1B\x61\x00';
+    Object.entries(ticketInfo).forEach(([key, value]) => {
+      if (key !== 'empresa') {
+        const label = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+        commands += `${label}: ${value}\n`;
+      }
+    });
     
-    // Valor
-    commands += '\x1B\x61\x01'; // Center alignment
-    commands += '\x1B\x21\x08'; // Emphasized mode
-    commands += 'VALOR TOTAL\n';
-    commands += `R$ ${valor.toFixed(2)}\n\n`;
-    commands += '\x1B\x21\x00'; // Normal mode
-    
-    // Rodapé
+    commands += '\n';
+    commands += '\x1B\x61\x01';
     commands += '--------------------------------\n';
     commands += 'Obrigado pela preferência!\n';
     commands += '--------------------------------\n\n';
     
-    // Corte do papel
-    commands += '\x1B\x69'; // Cut paper
+    commands += '\x1B\x69';
     
-    return commands;
-  }
-
-  private formatReportESCPOS(content: any): string {
-    // Relatórios geralmente são muito grandes para impressoras térmicas
-    // Recomendamos usar apenas PDF para relatórios
-    return '';
+    return encoder.encode(commands);
   }
 }
 
