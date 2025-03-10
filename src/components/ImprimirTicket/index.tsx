@@ -24,6 +24,7 @@ interface ImprimirTicketProps {
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const [metodoImpressao, setMetodoImpressao] = useState<'pdf' | 'epson' | 'share'>('pdf');
   const [isMobile, setIsMobile] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -42,7 +43,10 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   };
 
   const handleImprimir = async () => {
+    if (isProcessing) return;
+
     try {
+      setIsProcessing(true);
       const conteudo = {
         empresa: {
           nome: empresa.nome,
@@ -62,19 +66,21 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         content: conteudo,
         options: {
           method: isMobile ? 'share' : metodoImpressao,
-          paperSize: '80mm',
+          paperSize: 'A4',
           orientation: 'portrait'
         }
       });
 
       if (resultado) {
-        toast.success(isMobile ? 'Ticket pronto para compartilhamento' : 'Ticket enviado para impressão');
+        toast.success(isMobile ? 'Ticket pronto para compartilhamento' : 'Ticket gerado com sucesso');
       } else {
         throw new Error('Falha ao processar o ticket');
       }
     } catch (error) {
       console.error('Erro ao processar ticket:', error);
       toast.error('Não foi possível processar o ticket. Tente novamente.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -128,6 +134,7 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
             value={metodoImpressao} 
             onChange={(e) => setMetodoImpressao(e.target.value as 'pdf' | 'epson' | 'share')}
             className="print-method"
+            disabled={isProcessing}
           >
             <option value="pdf">Gerar PDF</option>
             <option value="epson">Impressora Epson</option>
@@ -138,8 +145,14 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         <button 
           className="btn-imprimir"
           onClick={handleImprimir}
+          disabled={isProcessing}
         >
-          {isMobile ? 'Compartilhar Ticket' : 'Imprimir Ticket'}
+          {isProcessing 
+            ? 'Processando...' 
+            : isMobile 
+              ? 'Compartilhar Ticket' 
+              : 'Imprimir Ticket'
+          }
         </button>
       </div>
     </div>

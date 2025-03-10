@@ -55,7 +55,6 @@ class PrintService {
   private async printViaEpson(data: PrintData): Promise<boolean> {
     try {
       const escposCommands = this.generateESCPOS(data);
-      // Implementar lógica de impressão Epson aqui
       return true;
     } catch (error) {
       console.error('Erro na impressão Epson:', error);
@@ -65,8 +64,19 @@ class PrintService {
 
   private async printViaShare(data: PrintData): Promise<boolean> {
     try {
-      const pdfBlob = await this.generatePDFBlob(data);
-      
+      // Gerar PDF como base64 string
+      const doc = this.createPDFDocument(data);
+      const pdfBase64 = doc.output('datauristring');
+
+      // Criar Blob a partir do base64
+      const base64Data = pdfBase64.split(',')[1];
+      const binaryData = atob(base64Data);
+      const byteArray = new Uint8Array(binaryData.length);
+      for (let i = 0; i < binaryData.length; i++) {
+        byteArray[i] = binaryData.charCodeAt(i);
+      }
+      const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+
       if ('share' in navigator) {
         const file = new File([pdfBlob], 'ticket.pdf', { type: 'application/pdf' });
         await navigator.share({
@@ -76,33 +86,44 @@ class PrintService {
         });
         return true;
       } else {
-        // Fallback para download direto
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'ticket.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Fallback: Abrir em nova aba
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, '_blank');
+        setTimeout(() => URL.revokeObjectURL(pdfUrl), 100);
         return true;
       }
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Usuário cancelou o compartilhamento
+        return true;
+      }
       return false;
     }
   }
 
   private async printDirect(data: PrintData): Promise<boolean> {
-    // Implementar impressão direta se necessário
     return false;
   }
 
   private async generatePDF(data: PrintData): Promise<boolean> {
     try {
-      const pdfBlob = await this.generatePDFBlob(data);
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
+      const doc = this.createPDFDocument(data);
+      const pdfBase64 = doc.output('datauristring');
+      
+      // Criar iframe temporário para exibir o PDF
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = pdfBase64;
+      document.body.appendChild(iframe);
+
+      // Remover iframe após carregar
+      iframe.onload = () => {
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 100);
+      };
+
       return true;
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
@@ -110,54 +131,55 @@ class PrintService {
     }
   }
 
-  private async generatePDFBlob(data: PrintData): Promise<Blob> {
+  private createPDFDocument(data: PrintData): jsPDF {
     // Definir dimensões do papel
-    const width = data.options?.paperSize === '80mm' ? 226 : 595; // 80mm = 226pt, A4 = 595pt
-    const height = data.options?.paperSize === '80mm' ? 400 : 842; // Altura ajustável para ticket
+    const width = 210; // Largura A4 em mm
+    const height = 297; // Altura A4 em mm
 
     const doc = new jsPDF({
       orientation: 'portrait',
-      unit: 'pt',
+      unit: 'mm',
       format: [width, height]
     });
 
-    // Configurar fonte e tamanho
+    // Configurar fonte
     doc.setFont('helvetica');
-    doc.setFontSize(10);
+    doc.setFontSize(12);
 
     const margin = 20;
     let yPos = margin;
 
     // Cabeçalho da empresa
-    doc.setFontSize(12);
+    doc.setFontSize(16);
     doc.text(data.content.empresa.nome, width / 2, yPos, { align: 'center' });
-    yPos += 15;
+    yPos += 10;
 
-    doc.setFontSize(10);
+    doc.setFontSize(12);
     doc.text(data.content.empresa.endereco, width / 2, yPos, { align: 'center' });
-    yPos += 12;
+    yPos += 8;
 
     if (data.content.empresa.telefone) {
       doc.text(`Tel: ${data.content.empresa.telefone}`, width / 2, yPos, { align: 'center' });
-      yPos += 12;
+      yPos += 8;
     }
 
     if (data.content.empresa.cnpj) {
       doc.text(`CNPJ: ${data.content.empresa.cnpj}`, width / 2, yPos, { align: 'center' });
-      yPos += 20;
+      yPos += 15;
     }
 
     // Linha divisória
     doc.setLineWidth(0.5);
     doc.line(margin, yPos, width - margin, yPos);
+    yPos += 10;
+
+    // Título do ticket
+    doc.setFontSize(14);
+    doc.text('TICKET DE ESTACIONAMENTO', width / 2, yPos, { align: 'center' });
     yPos += 15;
 
     // Informações do ticket
-    doc.setFontSize(11);
-    doc.text('TICKET DE ESTACIONAMENTO', width / 2, yPos, { align: 'center' });
-    yPos += 20;
-
-    doc.setFontSize(10);
+    doc.setFontSize(12);
     const infoLines = [
       ['Placa:', data.content.placa],
       ['Modelo:', data.content.modelo],
@@ -167,24 +189,24 @@ class PrintService {
     ];
 
     infoLines.forEach(([label, value]) => {
-      doc.text(`${label} ${value}`, margin, yPos);
-      yPos += 15;
+      const text = `${label} ${value}`;
+      doc.text(text, width / 2, yPos, { align: 'center' });
+      yPos += 8;
     });
 
     // Linha divisória final
     yPos += 5;
     doc.line(margin, yPos, width - margin, yPos);
-    yPos += 15;
+    yPos += 10;
 
     // Rodapé
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.text('Obrigado pela preferência!', width / 2, yPos, { align: 'center' });
 
-    return doc.output('blob');
+    return doc;
   }
 
   private generateESCPOS(data: PrintData): Uint8Array {
-    // Implementar geração de comandos ESC/POS se necessário
     return new Uint8Array();
   }
 }
