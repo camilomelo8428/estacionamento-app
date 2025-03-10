@@ -88,10 +88,9 @@
 
 .print-actions {
   display: flex;
-  gap: 10px;
+  gap: 1rem;
   justify-content: center;
-  margin-top: 20px;
-  padding: 0 10px;
+  margin-top: 2rem;
 }
 
 .print-method {
@@ -111,30 +110,44 @@
   border-color: #1976d2;
 }
 
-.btn-imprimir {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+.btn-imprimir,
+.btn-download {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
-  min-width: 150px;
-  height: 44px;
-  display: flex;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
-  -webkit-tap-highlight-color: transparent;
+  min-width: 120px;
 }
 
-.btn-imprimir:hover {
-  background: #1565c0;
+.btn-imprimir {
+  background-color: #1976d2;
+  color: white;
+  border: none;
 }
 
-.btn-imprimir:active {
-  background: #0d47a1;
-  transform: scale(0.98);
+.btn-imprimir:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.btn-imprimir:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-download {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+}
+
+.btn-download:hover {
+  background-color: #1b5e20;
 }
 
 /* Estilos específicos para impressão */
@@ -214,12 +227,13 @@
 
   .print-actions {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .print-method,
-  .btn-imprimir {
+  .btn-imprimir,
+  .btn-download {
     width: 100%;
-    min-width: unset;
   }
 
   .ticket-header h1 {

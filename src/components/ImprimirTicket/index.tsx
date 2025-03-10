@@ -23,21 +23,33 @@ interface ImprimirTicketProps {
 
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent));
-  }, []);
+    // Limpar a URL do PDF quando o componente for desmontado
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   const formatarData = (data: string) => {
     return format(new Date(data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
   };
 
-  const handleImprimir = async () => {
+  const handleGerarPDF = async () => {
     if (isProcessing) return;
 
     try {
       setIsProcessing(true);
+      
+      // Limpar URL anterior se existir
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+        setPdfUrl(null);
+      }
+
       const conteudo = {
         empresa: {
           nome: empresa.nome,
@@ -52,7 +64,7 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         entrada: formatarData(ticket.hora_entrada)
       };
 
-      const resultado = await printService.print({
+      const novaUrl = await printService.print({
         type: 'ticket',
         content: conteudo,
         options: {
@@ -62,14 +74,11 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         }
       });
 
-      if (resultado) {
-        toast.success(isMobile ? 'Ticket pronto para visualização' : 'Ticket gerado com sucesso');
-      } else {
-        throw new Error('Falha ao gerar o ticket');
-      }
+      setPdfUrl(novaUrl);
+      toast.success('PDF gerado com sucesso!');
     } catch (error) {
-      console.error('Erro ao processar ticket:', error);
-      toast.error('Não foi possível gerar o ticket. Tente novamente.');
+      console.error('Erro ao gerar PDF:', error);
+      toast.error('Não foi possível gerar o PDF. Tente novamente.');
     } finally {
       setIsProcessing(false);
     }
@@ -122,16 +131,23 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
       <div className="print-actions">
         <button 
           className="btn-imprimir"
-          onClick={handleImprimir}
+          onClick={handleGerarPDF}
           disabled={isProcessing}
         >
-          {isProcessing 
-            ? 'Processando...' 
-            : isMobile 
-              ? 'Visualizar Ticket' 
-              : 'Gerar Ticket'
-          }
+          {isProcessing ? 'Gerando PDF...' : 'Gerar PDF'}
         </button>
+
+        {pdfUrl && (
+          <a 
+            href={pdfUrl}
+            download="ticket.pdf"
+            className="btn-download"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Baixar PDF
+          </a>
+        )}
       </div>
     </div>
   );
