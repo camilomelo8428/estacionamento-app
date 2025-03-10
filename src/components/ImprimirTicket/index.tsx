@@ -24,6 +24,7 @@ interface ImprimirTicketProps {
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isMobile] = useState(() => /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
   useEffect(() => {
     // Limpar a URL do PDF quando o componente for desmontado
@@ -36,6 +37,32 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
 
   const formatarData = (data: string) => {
     return format(new Date(data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  };
+
+  const handleShare = async (blob: Blob) => {
+    try {
+      const file = new File([blob], 'ticket.pdf', { type: 'application/pdf' });
+      
+      if ('share' in navigator) {
+        await navigator.share({
+          files: [file],
+          title: 'Ticket de Estacionamento',
+          text: 'Seu ticket de estacionamento'
+        });
+        toast.success('Ticket pronto para compartilhamento!');
+      } else {
+        // Fallback para dispositivos que não suportam share
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast.success('PDF aberto em nova aba!');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Erro ao compartilhar:', error);
+        toast.error('Erro ao compartilhar o ticket');
+      }
+    }
   };
 
   const handleGerarPDF = async () => {
@@ -64,18 +91,22 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         entrada: formatarData(ticket.hora_entrada)
       };
 
-      const novaUrl = await printService.print({
+      const result = await printService.print({
         type: 'ticket',
         content: conteudo,
         options: {
           method: 'pdf',
-          paperSize: 'A4',
+          paperSize: '80mm',
           orientation: 'portrait'
         }
       });
 
-      setPdfUrl(novaUrl);
-      toast.success('PDF gerado com sucesso!');
+      if (isMobile && result.blob) {
+        await handleShare(result.blob);
+      } else if (result.url) {
+        setPdfUrl(result.url);
+        toast.success('PDF gerado com sucesso!');
+      }
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast.error('Não foi possível gerar o PDF. Tente novamente.');
@@ -134,10 +165,15 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
           onClick={handleGerarPDF}
           disabled={isProcessing}
         >
-          {isProcessing ? 'Gerando PDF...' : 'Gerar PDF'}
+          {isProcessing 
+            ? 'Processando...' 
+            : isMobile 
+              ? 'Compartilhar Ticket' 
+              : 'Gerar PDF'
+          }
         </button>
 
-        {pdfUrl && (
+        {!isMobile && pdfUrl && (
           <a 
             href={pdfUrl}
             download="ticket.pdf"

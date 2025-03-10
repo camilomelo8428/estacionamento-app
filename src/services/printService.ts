@@ -31,13 +31,23 @@ class PrintService {
     return PrintService.instance;
   }
 
-  async print(data: PrintData): Promise<string> {
+  async print(data: PrintData): Promise<{ url?: string; blob?: Blob }> {
     try {
       const doc = this.createPDFDocument(data);
       const pdfBlob = doc.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
       
-      return pdfUrl;
+      // Verificar se está em dispositivo móvel
+      const isMobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      if (isMobile && 'share' in navigator) {
+        // Criar arquivo para compartilhamento
+        const file = new File([pdfBlob], 'ticket.pdf', { type: 'application/pdf' });
+        return { blob: pdfBlob };
+      } else {
+        // Em desktop, retornar URL para download
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        return { url: pdfUrl, blob: pdfBlob };
+      }
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       throw new Error('Falha ao gerar o PDF');
