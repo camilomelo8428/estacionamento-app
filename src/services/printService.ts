@@ -54,17 +54,20 @@ class PrintService {
 
   private async printViaEpson(data: PrintData): Promise<boolean> {
     try {
-      // Gera o conteúdo em formato ESC/POS
       const escposContent = this.generateESCPOS(data);
-      
-      // Cria um Blob com o conteúdo
       const blob = new Blob([escposContent], { type: 'application/octet-stream' });
-      
-      // Cria URL para download/compartilhamento
       const url = window.URL.createObjectURL(blob);
       
-      // Abre intent para o aplicativo Epson
-      window.location.href = `intent://${url}#Intent;scheme=epson;package=com.epson.epos2_printer;end;`;
+      // Tenta abrir o app Epson
+      if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = `intent://${url}#Intent;scheme=epson;package=com.epson.epos2_printer;end;`;
+      } else {
+        // Fallback para download em desktop
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'impressao.prn';
+        a.click();
+      }
       
       return true;
     } catch (error) {
@@ -75,23 +78,31 @@ class PrintService {
 
   private async printViaShare(data: PrintData): Promise<boolean> {
     try {
-      // Gera PDF para compartilhamento
       const pdfBlob = await this.generatePDFBlob(data);
       
-      if (navigator.share) {
-        await navigator.share({
-          files: [new File([pdfBlob], 'documento.pdf', { type: 'application/pdf' })]
-        });
-        return true;
+      if (navigator.share && navigator.canShare) {
+        const file = new File([pdfBlob], 'documento.pdf', { type: 'application/pdf' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Compartilhar documento',
+          });
+          return true;
+        }
+      }
+      
+      // Fallback para download ou visualização
+      const url = window.URL.createObjectURL(pdfBlob);
+      if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = url;
       } else {
-        // Fallback para download se compartilhamento não disponível
-        const url = window.URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'documento.pdf';
         a.click();
-        return true;
       }
+      
+      return true;
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
       return false;
@@ -99,7 +110,7 @@ class PrintService {
   }
 
   private async printDirect(data: PrintData): Promise<boolean> {
-    // Implementação futura para impressão direta via WebUSB ou Bluetooth
+    // Implementação futura para impressão direta
     return false;
   }
 
@@ -107,7 +118,14 @@ class PrintService {
     try {
       const pdfBlob = await this.generatePDFBlob(data);
       const url = window.URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
+      
+      // Tratamento específico para dispositivos móveis
+      if (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = url;
+      } else {
+        window.open(url, '_blank');
+      }
+      
       return true;
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);

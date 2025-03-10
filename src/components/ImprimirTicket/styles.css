@@ -1,131 +1,121 @@
 /* Estilos gerais */
 .ticket-impressao {
-  background: white;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  max-width: 400px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
 .ticket-content {
-  border: 1px dashed #ccc;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
 
 .ticket-header {
   text-align: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed #ccc;
+  margin-bottom: 20px;
 }
 
 .ticket-header h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0 0 0.5rem;
-  color: var(--text-primary);
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
 }
 
 .ticket-header p {
-  font-size: 0.875rem;
-  margin: 0.25rem 0;
-  color: var(--text-secondary);
+  color: #666;
+  margin: 5px 0;
 }
 
 .ticket-info {
-  margin: 1.5rem 0;
+  margin: 20px 0;
 }
 
 .ticket-info h2 {
   text-align: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  margin: 0.5rem 0;
-  font-size: 0.875rem;
+  margin: 10px 0;
+  padding: 5px 0;
+  border-bottom: 1px dashed #ddd;
 }
 
 .info-row .label {
-  font-weight: 500;
-  color: var(--text-secondary);
-  flex: 1;
+  font-weight: bold;
+  color: #666;
 }
 
 .info-row .value {
-  font-weight: 600;
-  color: var(--text-primary);
-  flex: 2;
+  color: #333;
   text-align: right;
 }
 
 .ticket-footer {
   text-align: center;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px dashed #ccc;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
 }
 
 .ticket-footer p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0;
+  color: #666;
 }
 
 .print-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .print-method {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
+  padding: 10px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background: white;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  background: #fff;
+  min-width: 150px;
+  height: 44px;
+  font-size: 16px;
 }
 
 .print-method:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  border-color: #1976d2;
 }
 
 .btn-imprimir {
-  flex: 1;
-  background: var(--primary-color);
-  color: white;
+  background: #1976d2;
+  color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 10px 20px;
   border-radius: 4px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 16px;
+  min-width: 150px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  transition: background-color 0.2s;
 }
 
 .btn-imprimir:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
+  background: #1565c0;
 }
 
 .btn-imprimir:active {
-  transform: translateY(0);
+  background: #0d47a1;
 }
 
 /* Estilos específicos para impressão */
@@ -189,5 +179,73 @@
 
   .btn-imprimir:active {
     transform: scale(0.98);
+  }
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 480px) {
+  .ticket-impressao {
+    padding: 10px;
+    margin: 10px;
+    width: auto;
+  }
+
+  .ticket-content {
+    padding: 10px;
+  }
+
+  .ticket-header h1 {
+    font-size: 20px;
+  }
+
+  .ticket-info h2 {
+    font-size: 18px;
+  }
+
+  .info-row {
+    font-size: 14px;
+  }
+
+  .print-actions {
+    flex-direction: column;
+  }
+
+  .print-method,
+  .btn-imprimir {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Suporte para tema escuro */
+@media (prefers-color-scheme: dark) {
+  .ticket-impressao {
+    background: #1a1a1a;
+    color: #fff;
+  }
+
+  .ticket-header h1 {
+    color: #fff;
+  }
+
+  .ticket-header p,
+  .info-row .label,
+  .info-row .value,
+  .ticket-footer p {
+    color: #ccc;
+  }
+
+  .ticket-content {
+    border-color: #333;
+  }
+
+  .info-row {
+    border-bottom-color: #333;
+  }
+
+  .print-method {
+    background: #2a2a2a;
+    border-color: #333;
+    color: #fff;
   }
 } 

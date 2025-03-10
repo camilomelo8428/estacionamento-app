@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { printService } from '../../services/printService';
@@ -23,6 +23,19 @@ interface ImprimirTicketProps {
 
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const [metodoImpressao, setMetodoImpressao] = useState<'pdf' | 'epson' | 'share'>('pdf');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      if (mobile) {
+        setMetodoImpressao('share');
+      }
+    };
+
+    checkMobile();
+  }, []);
 
   const formatarData = (data: string) => {
     return format(new Date(data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
@@ -101,21 +114,23 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
       </div>
 
       <div className="print-actions">
-        <select 
-          value={metodoImpressao} 
-          onChange={(e) => setMetodoImpressao(e.target.value as 'pdf' | 'epson' | 'share')}
-          className="print-method"
-        >
-          <option value="pdf">Gerar PDF</option>
-          <option value="epson">Impressora Epson</option>
-          <option value="share">Compartilhar</option>
-        </select>
+        {!isMobile && (
+          <select 
+            value={metodoImpressao} 
+            onChange={(e) => setMetodoImpressao(e.target.value as 'pdf' | 'epson' | 'share')}
+            className="print-method"
+          >
+            <option value="pdf">Gerar PDF</option>
+            <option value="epson">Impressora Epson</option>
+            <option value="share">Compartilhar</option>
+          </select>
+        )}
 
         <button 
           className="btn-imprimir"
           onClick={handleImprimir}
         >
-          Imprimir Ticket
+          {isMobile ? 'Compartilhar Ticket' : 'Imprimir Ticket'}
         </button>
       </div>
     </div>
