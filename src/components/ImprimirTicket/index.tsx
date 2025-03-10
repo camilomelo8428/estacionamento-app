@@ -44,17 +44,17 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
   const handleImprimir = async () => {
     try {
       const conteudo = {
-        placa: ticket.placa,
-        modelo: ticket.modelo,
-        cor: ticket.cor,
-        vaga: ticket.vaga,
-        entrada: formatarData(ticket.hora_entrada),
         empresa: {
           nome: empresa.nome,
           endereco: empresa.endereco,
           telefone: empresa.telefone,
           cnpj: empresa.cnpj
-        }
+        },
+        placa: ticket.placa,
+        modelo: ticket.modelo,
+        cor: ticket.cor,
+        vaga: ticket.vaga,
+        entrada: formatarData(ticket.hora_entrada)
       };
 
       const resultado = await printService.print({
@@ -62,18 +62,19 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         content: conteudo,
         options: {
           method: isMobile ? 'share' : metodoImpressao,
-          paperSize: '80mm'
+          paperSize: '80mm',
+          orientation: 'portrait'
         }
       });
 
       if (resultado) {
         toast.success(isMobile ? 'Ticket pronto para compartilhamento' : 'Ticket enviado para impressão');
       } else {
-        toast.error('Erro ao processar o ticket');
+        throw new Error('Falha ao processar o ticket');
       }
     } catch (error) {
       console.error('Erro ao processar ticket:', error);
-      toast.error('Erro ao processar o ticket');
+      toast.error('Não foi possível processar o ticket. Tente novamente.');
     }
   };
 
