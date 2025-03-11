@@ -7,8 +7,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build",
-        "installCommand": "npm install",
-        "buildCommand": "CI=false npm run build"
+        "buildCommand": "CI='' npm run build"
       }
     }
   ],
@@ -47,5 +46,6 @@
     "silent": false
   },
   "framework": "create-react-app",
-  "outputDirectory": "build"
+  "outputDirectory": "build",
+  "installCommand": "npm install"
 } 
