@@ -1,5 +1,0 @@
-[33mcd882ed[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m style: melhoria no layout dos botões na página de funcionários
-[33mc361d0d[m chore: ajuste no script de build para deploy
-[33mc4de7b1[m feat: melhorias nos ícones indicativos de categorias na tela de status de vagas
-[33m0fe7062[m feat: Implementa compartilhamento nativo para dispositivos móveis
-[33m09e1523[m refactor: Simplifica geração de PDF removendo impressão automática
