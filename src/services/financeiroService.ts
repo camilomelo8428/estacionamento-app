@@ -34,7 +34,7 @@ export const financeiroService = {
     try {
       const hoje = new Date();
       
-      // Ajusta para o fuso horário local do Brasil
+      // Ajusta para o início e fim do dia no horário de Brasília (UTC-3)
       const dataInicioObj = dataInicio 
         ? new Date(dataInicio) 
         : new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
@@ -43,48 +43,70 @@ export const financeiroService = {
         ? new Date(dataFim) 
         : new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59, 999);
 
-      // Converte para UTC mantendo o horário local
-      const dataInicioUTC = new Date(dataInicioObj.getTime() - (dataInicioObj.getTimezoneOffset() * 60000));
-      const dataFimUTC = new Date(dataFimObj.getTime() - (dataFimObj.getTimezoneOffset() * 60000));
+      // Formata as datas para o formato YYYY-MM-DD
+      const dataInicioFormatada = dataInicioObj.toISOString().split('T')[0];
+      const dataFimFormatada = dataFimObj.toISOString().split('T')[0];
 
-      console.log('Data Início (Local):', dataInicioObj.toLocaleString('pt-BR'));
-      console.log('Data Fim (Local):', dataFimObj.toLocaleString('pt-BR'));
-      console.log('Data Início (UTC):', dataInicioUTC.toISOString());
-      console.log('Data Fim (UTC):', dataFimUTC.toISOString());
+      console.log('Buscando faturamento para o período:');
+      console.log('Data Início:', dataInicioFormatada);
+      console.log('Data Fim:', dataFimFormatada);
 
       // Buscar tickets fechados no período
       const { data: ticketsFechados, error: errorTickets } = await supabase
         .from('tickets')
-        .select('valor_total')
+        .select('valor_total, tipo, hora_saida, hora_entrada')
         .eq('status', 'FECHADO')
-        .gte('hora_saida', dataInicioUTC.toISOString())
-        .lte('hora_saida', dataFimUTC.toISOString());
+        .eq('tipo', 'AVULSO')
+        .gte('hora_saida', `${dataInicioFormatada}T00:00:00`)
+        .lte('hora_saida', `${dataFimFormatada}T23:59:59`);
 
       if (errorTickets) {
         console.error('Erro ao buscar tickets:', errorTickets);
         throw new Error('Erro ao buscar tickets fechados');
       }
 
-      // Buscar mensalidades pagas no período usando a data local
+      console.log('Tickets encontrados:', ticketsFechados?.length || 0);
+      
+      // Calcular faturamento de tickets avulsos
+      const faturamentoTicketsAvulsos = ticketsFechados?.reduce((total, ticket) => {
+        console.log('Processando ticket:', {
+          valor: ticket.valor_total,
+          entrada: new Date(ticket.hora_entrada).toLocaleString('pt-BR'),
+          saida: new Date(ticket.hora_saida!).toLocaleString('pt-BR')
+        });
+        return total + (ticket.valor_total || 0);
+      }, 0) || 0;
+
+      console.log('Faturamento Tickets Avulsos:', faturamentoTicketsAvulsos);
+
+      // Buscar mensalidades pagas no período
       const { data: mensalidadesPagas, error: errorMensalidades } = await supabase
         .from('mensalidades')
-        .select('valor, valor_multa, valor_juros')
+        .select('valor, valor_multa, valor_juros, data_pagamento')
         .eq('status', 'PAGO')
-        .gte('data_pagamento', dataInicioObj.toISOString().split('T')[0])
-        .lte('data_pagamento', dataFimObj.toISOString().split('T')[0]);
+        .gte('data_pagamento', dataInicioFormatada)
+        .lte('data_pagamento', dataFimFormatada);
 
       if (errorMensalidades) {
         console.error('Erro ao buscar mensalidades:', errorMensalidades);
         throw new Error('Erro ao buscar mensalidades pagas');
       }
 
-      // Calcular faturamento diário
-      const faturamentoTickets = ticketsFechados?.reduce((total, ticket) => total + (ticket.valor_total || 0), 0) || 0;
+      console.log('Mensalidades encontradas:', mensalidadesPagas?.length || 0);
+
+      // Calcular faturamento de mensalidades
       const faturamentoMensalidades = mensalidadesPagas?.reduce((total, mensalidade) => {
-        return total + (mensalidade.valor || 0) + (mensalidade.valor_multa || 0) + (mensalidade.valor_juros || 0);
+        const valorTotal = (mensalidade.valor || 0) + (mensalidade.valor_multa || 0) + (mensalidade.valor_juros || 0);
+        console.log('Processando mensalidade:', {
+          data: mensalidade.data_pagamento,
+          valorBase: mensalidade.valor,
+          multa: mensalidade.valor_multa,
+          juros: mensalidade.valor_juros,
+          valorTotal: valorTotal
+        });
+        return total + valorTotal;
       }, 0) || 0;
 
-      console.log('Faturamento Tickets:', faturamentoTickets);
       console.log('Faturamento Mensalidades:', faturamentoMensalidades);
 
       // Buscar total de tickets emitidos
@@ -104,8 +126,11 @@ export const financeiroService = {
         .select('*', { count: 'exact' })
         .eq('status', 'ATRASADO');
 
+      const faturamentoDiario = faturamentoTicketsAvulsos + faturamentoMensalidades;
+      console.log('Faturamento Diário Total:', faturamentoDiario);
+
       return {
-        faturamentoDiario: faturamentoTickets + faturamentoMensalidades,
+        faturamentoDiario,
         ticketsEmitidos: ticketsEmitidos || 0,
         ticketsAtivos: ticketsAtivos || 0,
         mensalidadesEmAtraso: mensalidadesEmAtraso || 0
@@ -132,24 +157,31 @@ export const financeiroService = {
         const dataInicioUTC = new Date(dataInicio.getTime() - (dataInicio.getTimezoneOffset() * 60000));
         const dataFimUTC = new Date(dataFim.getTime() - (dataFim.getTimezoneOffset() * 60000));
 
-        // Buscar tickets do mês
-        const { data: ticketsMes } = await supabase
+        console.log(`Buscando dados para ${meses[mes]}:`, {
+          inicio: dataInicioUTC.toISOString(),
+          fim: dataFimUTC.toISOString()
+        });
+
+        // Buscar tickets avulsos fechados do mês
+        const { data: ticketsMes, error: errorTickets } = await supabase
           .from('tickets')
           .select('valor_total')
-          .gte('hora_saida', dataInicioUTC.toISOString())
-          .lte('hora_saida', dataFimUTC.toISOString())
           .eq('status', 'FECHADO')
-          .eq('tipo', 'AVULSO');
+          .eq('tipo', 'AVULSO')
+          .gte('hora_saida', dataInicioUTC.toISOString())
+          .lte('hora_saida', dataFimUTC.toISOString());
 
-        // Buscar mensalidades pagas no mês usando a data local
+        if (errorTickets) {
+          console.error(`Erro ao buscar tickets para ${meses[mes]}:`, errorTickets);
+          continue;
+        }
+
+        console.log(`Tickets encontrados em ${meses[mes]}:`, ticketsMes?.length || 0);
+
+        // Buscar mensalidades pagas no mês
         const { data: mensalidadesMes } = await supabase
           .from('mensalidades')
-          .select(`
-            valor,
-            valor_multa,
-            valor_juros,
-            data_pagamento
-          `)
+          .select('valor, valor_multa, valor_juros')
           .eq('status', 'PAGO')
           .gte('data_pagamento', dataInicio.toISOString().split('T')[0])
           .lte('data_pagamento', dataFim.toISOString().split('T')[0]);
@@ -160,8 +192,7 @@ export const financeiroService = {
           const valorBase = mensalidade.valor || 0;
           const valorMulta = mensalidade.valor_multa || 0;
           const valorJuros = mensalidade.valor_juros || 0;
-          const valorTotal = valorBase + valorMulta + valorJuros;
-          return total + valorTotal;
+          return total + valorBase + valorMulta + valorJuros;
         }, 0) || 0;
 
         const valorTotal = valorTickets + valorMensalidades;

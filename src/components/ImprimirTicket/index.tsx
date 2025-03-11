@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { printService } from '../../services/printService';
-import { toast } from 'react-toastify';
+import { PrinterOutlined } from '@ant-design/icons';
 import './styles.css';
 
 interface ImprimirTicketProps {
@@ -22,96 +21,132 @@ interface ImprimirTicketProps {
 }
 
 const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [isMobile] = useState(() => /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent));
-
-  useEffect(() => {
-    // Limpar a URL do PDF quando o componente for desmontado
-    return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
-      }
-    };
-  }, [pdfUrl]);
-
   const formatarData = (data: string) => {
-    return format(new Date(data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+    return format(new Date(data), "dd/MM/yyyy HH:mm:ss", { locale: ptBR });
   };
 
-  const handleShare = async (blob: Blob) => {
-    try {
-      const file = new File([blob], 'ticket.pdf', { type: 'application/pdf' });
+  const handleImprimir = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Ticket de Estacionamento</title>
+            <meta charset="UTF-8">
+            <style>
+              @page {
+                margin: 0;
+                size: 80mm auto;
+              }
+              body {
+                font-family: monospace;
+                width: 80mm;
+                margin: 0;
+                padding: 2mm;
+                font-size: 12px;
+                line-height: 1.2;
+              }
+              .ticket-header {
+                text-align: center;
+                border-bottom: 1px dashed #000;
+                padding-bottom: 2mm;
+                margin-bottom: 2mm;
+              }
+              .ticket-header h1 {
+                font-size: 14px;
+                margin: 0 0 1mm;
+                font-weight: bold;
+              }
+              .ticket-header p {
+                font-size: 12px;
+                margin: 0.5mm 0;
+              }
+              .ticket-info {
+                margin: 2mm 0;
+              }
+              .info-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 0.5mm 0;
+                font-family: monospace;
+              }
+              .info-row span:first-child {
+                width: 40%;
+              }
+              .info-row span:last-child {
+                width: 60%;
+                text-align: right;
+              }
+              .ticket-footer {
+                text-align: center;
+                border-top: 1px dashed #000;
+                margin-top: 2mm;
+                padding-top: 2mm;
+              }
+              .ticket-footer p {
+                font-size: 10px;
+                margin: 0.5mm 0;
+              }
+              .ticket-numero {
+                font-family: monospace;
+                font-size: 12px;
+                font-weight: bold;
+                margin-top: 2mm;
+                text-align: center;
+              }
+              * {
+                font-family: monospace !important;
+                text-transform: uppercase;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="ticket-header">
+              <h1>${empresa.nome}</h1>
+              <p>${empresa.endereco}</p>
+              <p>${empresa.telefone}</p>
+              ${empresa.cnpj ? `<p>CNPJ: ${empresa.cnpj}</p>` : ''}
+            </div>
+
+            <div class="ticket-info">
+              <div class="info-row">
+                <span>PLACA:</span>
+                <span>${ticket.placa}</span>
+              </div>
+              <div class="info-row">
+                <span>MODELO:</span>
+                <span>${ticket.modelo}</span>
+              </div>
+              <div class="info-row">
+                <span>COR:</span>
+                <span>${ticket.cor}</span>
+              </div>
+              <div class="info-row">
+                <span>VAGA:</span>
+                <span>${ticket.vaga}</span>
+              </div>
+              <div class="info-row">
+                <span>ENTRADA:</span>
+                <span>${formatarData(ticket.hora_entrada)}</span>
+              </div>
+            </div>
+
+            <div class="ticket-footer">
+              <p>GUARDE ESTE TICKET EM LOCAL SEGURO</p>
+              <p>NECESSÁRIO PARA RETIRADA DO VEÍCULO</p>
+              <div class="ticket-numero">
+                #${ticket.vaga}-${format(new Date(ticket.hora_entrada), "yyyyMMddHHmmss")}
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
       
-      if ('share' in navigator) {
-        await navigator.share({
-          files: [file],
-          title: 'Ticket de Estacionamento',
-          text: 'Seu ticket de estacionamento'
-        });
-        toast.success('Ticket pronto para compartilhamento!');
-      } else {
-        // Fallback para dispositivos que não suportam share
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success('PDF aberto em nova aba!');
-      }
-    } catch (error) {
-      if (error instanceof Error && error.name !== 'AbortError') {
-        console.error('Erro ao compartilhar:', error);
-        toast.error('Erro ao compartilhar o ticket');
-      }
-    }
-  };
-
-  const handleGerarPDF = async () => {
-    if (isProcessing) return;
-
-    try {
-      setIsProcessing(true);
-      
-      // Limpar URL anterior se existir
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
-        setPdfUrl(null);
-      }
-
-      const conteudo = {
-        empresa: {
-          nome: empresa.nome,
-          endereco: empresa.endereco,
-          telefone: empresa.telefone,
-          cnpj: empresa.cnpj
-        },
-        placa: ticket.placa,
-        modelo: ticket.modelo,
-        cor: ticket.cor,
-        vaga: ticket.vaga,
-        entrada: formatarData(ticket.hora_entrada)
-      };
-
-      const result = await printService.print({
-        type: 'ticket',
-        content: conteudo,
-        options: {
-          method: 'pdf',
-          paperSize: '80mm',
-          orientation: 'portrait'
-        }
-      });
-
-      if (isMobile && result.blob) {
-        await handleShare(result.blob);
-      } else if (result.url) {
-        setPdfUrl(result.url);
-        toast.success('PDF gerado com sucesso!');
-      }
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      toast.error('Não foi possível gerar o PDF. Tente novamente.');
-    } finally {
-      setIsProcessing(false);
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
     }
   };
 
@@ -121,70 +156,49 @@ const ImprimirTicket: React.FC<ImprimirTicketProps> = ({ ticket, empresa }) => {
         <div className="ticket-header">
           <h1>{empresa.nome}</h1>
           <p>{empresa.endereco}</p>
-          <p>Tel: {empresa.telefone}</p>
+          <p>{empresa.telefone}</p>
           {empresa.cnpj && <p>CNPJ: {empresa.cnpj}</p>}
         </div>
 
         <div className="ticket-info">
-          <h2>TICKET DE ESTACIONAMENTO</h2>
-          
           <div className="info-row">
-            <span className="label">Placa:</span>
+            <span className="label">PLACA:</span>
             <span className="value">{ticket.placa}</span>
           </div>
           
           <div className="info-row">
-            <span className="label">Modelo:</span>
+            <span className="label">MODELO:</span>
             <span className="value">{ticket.modelo}</span>
           </div>
           
           <div className="info-row">
-            <span className="label">Cor:</span>
+            <span className="label">COR:</span>
             <span className="value">{ticket.cor}</span>
           </div>
           
           <div className="info-row">
-            <span className="label">Vaga:</span>
+            <span className="label">VAGA:</span>
             <span className="value">{ticket.vaga}</span>
           </div>
           
           <div className="info-row">
-            <span className="label">Entrada:</span>
+            <span className="label">ENTRADA:</span>
             <span className="value">{formatarData(ticket.hora_entrada)}</span>
           </div>
         </div>
 
         <div className="ticket-footer">
-          <p>Obrigado pela preferência!</p>
+          <p>GUARDE ESTE TICKET EM LOCAL SEGURO</p>
+          <p>NECESSÁRIO PARA RETIRADA DO VEÍCULO</p>
+          <div className="ticket-numero">
+            #{ticket.vaga}-{format(new Date(ticket.hora_entrada), "yyyyMMddHHmmss")}
+          </div>
         </div>
       </div>
 
-      <div className="print-actions">
-        <button 
-          className="btn-imprimir"
-          onClick={handleGerarPDF}
-          disabled={isProcessing}
-        >
-          {isProcessing 
-            ? 'Processando...' 
-            : isMobile 
-              ? 'Compartilhar Ticket' 
-              : 'Gerar PDF'
-          }
-        </button>
-
-        {!isMobile && pdfUrl && (
-          <a 
-            href={pdfUrl}
-            download="ticket.pdf"
-            className="btn-download"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Baixar PDF
-          </a>
-        )}
-      </div>
+      <button className="btn-imprimir" onClick={handleImprimir}>
+        <PrinterOutlined /> Imprimir Ticket
+      </button>
     </div>
   );
 };

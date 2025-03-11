@@ -4,6 +4,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '../../services/supabase';
 import { useVagas } from '../../contexts/VagasContext';
+import { LoadingOutlined, LockOutlined, CarOutlined, UserOutlined, ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import ConfirmacaoModal from '../../components/ConfirmacaoModal';
 import './styles.css';
 
 interface Ticket {
@@ -35,6 +37,8 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
   const [senha, setSenha] = useState('');
   const [senhaVerificada, setSenhaVerificada] = useState(false);
   const [erroSenha, setErroSenha] = useState('');
+  const [pesquisa, setPesquisa] = useState('');
+  const [showConfirmacao, setShowConfirmacao] = useState(false);
 
   const SENHA_ADMIN = '071012';
 
@@ -70,11 +74,11 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
           mensalista:mensalistas (
             nome
           )
-        `);
+        `)
+        .order('hora_entrada', { ascending: false });
 
       if (error) throw error;
 
-      // Transformar os dados para o formato correto
       const ticketsFormatados: Ticket[] = (data || []).map(ticket => ({
         id: ticket.id,
         placa: ticket.placa,
@@ -102,10 +106,10 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
   };
 
   const handleSelecionarTodos = () => {
-    if (selectedTickets.length === tickets.length) {
+    if (selectedTickets.length === ticketsFiltrados.length) {
       setSelectedTickets([]);
     } else {
-      setSelectedTickets(tickets.map(ticket => ticket.id));
+      setSelectedTickets(ticketsFiltrados.map(ticket => ticket.id));
     }
   };
 
@@ -125,13 +129,12 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
       return;
     }
 
-    if (!window.confirm('Tem certeza que deseja remover os tickets selecionados?')) {
-      return;
-    }
+    setShowConfirmacao(true);
+  };
 
+  const confirmarRemocao = async () => {
     setLoading(true);
     try {
-      // Primeiro buscar os tickets para obter os vaga_ids
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('tickets')
         .select(`
@@ -145,7 +148,6 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
 
       if (ticketsError) throw ticketsError;
 
-      // Remover os tickets
       const { error: deleteError } = await supabase
         .from('tickets')
         .delete()
@@ -153,11 +155,9 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
 
       if (deleteError) throw deleteError;
 
-      // Atualizar o status das vagas para LIVRE
       if (ticketsData && ticketsData.length > 0) {
         const vagaIds = ticketsData.map(t => t.vaga_id).filter(Boolean);
         if (vagaIds.length > 0) {
-          // Atualizar uma vaga por vez para evitar problemas com o limite por categoria
           for (const vagaId of vagaIds) {
             const { error: vagaError } = await supabase
               .from('vagas')
@@ -172,151 +172,227 @@ const LimparTicketsModal: React.FC<LimparTicketsModalProps> = ({ isOpen, onClose
 
             if (vagaError) {
               console.error('Erro ao atualizar vaga:', vagaError);
-              continue; // Continua com a próxima vaga mesmo se houver erro
+              continue;
             }
           }
         }
       }
 
-      toast.success('Tickets removidos com sucesso!');
-      await listarVagas(); // Atualiza a lista de vagas
-      onSuccess();
-      onClose();
+      toast.success(`${selectedTickets.length} ticket(s) removido(s) com sucesso!`);
+      await listarVagas();
+      await carregarTickets();
+      setSelectedTickets([]);
     } catch (error: any) {
       console.error('Erro ao remover tickets:', error);
       if (error?.message?.includes('P0001')) {
-        toast.error('Erro ao atualizar algumas vagas. Por favor, verifique a configuração das categorias.');
+        toast.error('Erro ao atualizar algumas vagas. Verifique a configuração das categorias.');
       } else {
         toast.error('Erro ao remover tickets');
       }
     } finally {
       setLoading(false);
+      setShowConfirmacao(false);
     }
   };
 
   const ticketsFiltrados = tickets.filter(ticket => {
     const matchStatus = filtroStatus === 'TODOS' || ticket.status === filtroStatus;
     const matchTipo = filtroTipo === 'TODOS' || ticket.tipo === filtroTipo;
-    return matchStatus && matchTipo;
+    const matchPesquisa = pesquisa === '' || 
+      ticket.placa.toLowerCase().includes(pesquisa.toLowerCase()) ||
+      ticket.modelo.toLowerCase().includes(pesquisa.toLowerCase()) ||
+      (ticket.mensalista?.nome || '').toLowerCase().includes(pesquisa.toLowerCase());
+    return matchStatus && matchTipo && matchPesquisa;
   });
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal limpar-tickets-modal">
-        <div className="modal-header">
-          <h2>Limpar Tickets</h2>
-          <button className="btn-close" onClick={onClose}>×</button>
-        </div>
-
-        {!senhaVerificada ? (
-          <div className="modal-content">
-            <div className="senha-container">
-              <h3>Digite a senha de administrador</h3>
-              <div className="form-group">
-                <input
-                  type="password"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  placeholder="Digite a senha"
-                  className={erroSenha ? 'error' : ''}
-                />
-                {erroSenha && <div className="erro-senha">{erroSenha}</div>}
-              </div>
-              <button className="btn-confirmar" onClick={verificarSenha}>
-                Verificar Senha
-              </button>
-            </div>
+    <>
+      <div className="modal-overlay">
+        <div className="modal limpar-tickets-modal">
+          <div className="modal-header">
+            <h2>
+              <LockOutlined style={{ marginRight: '8px' }} />
+              Limpar Tickets
+            </h2>
+            <button className="btn-close" onClick={onClose}>×</button>
           </div>
-        ) : (
-          <div className="modal-content">
-            <div className="filtros-tickets">
-              <div className="filtro-grupo">
-                <label>Status:</label>
-                <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value as any)}>
-                  <option value="TODOS">Todos</option>
-                  <option value="ABERTO">Abertos</option>
-                  <option value="FECHADO">Fechados</option>
-                </select>
-              </div>
-              <div className="filtro-grupo">
-                <label>Tipo:</label>
-                <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value as any)}>
-                  <option value="TODOS">Todos</option>
-                  <option value="AVULSO">Avulso</option>
-                  <option value="MENSALISTA">Mensalista</option>
-                </select>
-              </div>
-            </div>
 
-            <div className="tickets-header">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedTickets.length === tickets.length}
-                  onChange={handleSelecionarTodos}
-                />
-                Selecionar Todos
-              </label>
-            </div>
-
-            <div className="tickets-lista">
-              {loading ? (
-                <div className="loading">Carregando tickets...</div>
-              ) : ticketsFiltrados.length === 0 ? (
-                <div className="no-tickets">Nenhum ticket encontrado</div>
-              ) : (
-                ticketsFiltrados.map(ticket => (
-                  <div key={ticket.id} className={`ticket-item ${ticket.status.toLowerCase()}`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedTickets.includes(ticket.id)}
-                      onChange={() => handleSelecionarTicket(ticket.id)}
-                    />
-                    <div className="ticket-info">
-                      <div className="ticket-principal">
-                        <span className="placa">{ticket.placa}</span>
-                        <span className={`status ${ticket.status.toLowerCase()}`}>
-                          {ticket.status}
-                        </span>
-                        <span className={`tipo ${ticket.tipo.toLowerCase()}`}>
-                          {ticket.tipo}
-                        </span>
-                      </div>
-                      {ticket.tipo === 'MENSALISTA' && ticket.mensalista && (
-                        <div className="mensalista">
-                          👤 {ticket.mensalista.nome}
-                        </div>
-                      )}
-                      <div className="ticket-detalhes">
-                        <span>Modelo: {ticket.modelo}</span>
-                        <span>Entrada: {formatarData(ticket.hora_entrada)}</span>
-                        {ticket.hora_saida && (
-                          <span>Saída: {formatarData(ticket.hora_saida)}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {ticketsFiltrados.length > 0 && (
-              <div className="modal-actions">
-                <button
-                  className="btn-remover"
-                  onClick={handleRemoverSelecionados}
-                  disabled={selectedTickets.length === 0 || loading}
-                >
-                  Remover Selecionados
+          {!senhaVerificada ? (
+            <div className="modal-content">
+              <div className="senha-container">
+                <h3>
+                  <LockOutlined style={{ marginRight: '8px' }} />
+                  Digite a senha de administrador
+                </h3>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && verificarSenha()}
+                    placeholder="Digite a senha"
+                    className={erroSenha ? 'error' : ''}
+                  />
+                  {erroSenha && <div className="erro-senha">{erroSenha}</div>}
+                </div>
+                <button className="btn-confirmar" onClick={verificarSenha}>
+                  Verificar Senha
                 </button>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="modal-content">
+              <div className="filtros-tickets">
+                <div className="filtro-grupo">
+                  <label>Status:</label>
+                  <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value as any)}>
+                    <option value="TODOS">Todos</option>
+                    <option value="ABERTO">Abertos</option>
+                    <option value="FECHADO">Fechados</option>
+                  </select>
+                </div>
+                <div className="filtro-grupo">
+                  <label>Tipo:</label>
+                  <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value as any)}>
+                    <option value="TODOS">Todos</option>
+                    <option value="AVULSO">Avulso</option>
+                    <option value="MENSALISTA">Mensalista</option>
+                  </select>
+                </div>
+                <div className="filtro-grupo">
+                  <label>Pesquisar:</label>
+                  <input
+                    type="text"
+                    value={pesquisa}
+                    onChange={(e) => setPesquisa(e.target.value)}
+                    placeholder="Placa, modelo ou nome..."
+                  />
+                </div>
+              </div>
+
+              <div className="tickets-header">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={selectedTickets.length === ticketsFiltrados.length && ticketsFiltrados.length > 0}
+                    onChange={handleSelecionarTodos}
+                    disabled={ticketsFiltrados.length === 0}
+                  />
+                  Selecionar Todos ({selectedTickets.length} selecionado(s))
+                </label>
+                <span className="tickets-count">
+                  Total: {ticketsFiltrados.length} ticket(s)
+                </span>
+              </div>
+
+              <div className="tickets-lista">
+                {loading ? (
+                  <div className="loading">
+                    <LoadingOutlined style={{ fontSize: 24, marginRight: 8 }} />
+                    Carregando tickets...
+                  </div>
+                ) : ticketsFiltrados.length === 0 ? (
+                  <div className="no-tickets">
+                    Nenhum ticket encontrado
+                  </div>
+                ) : (
+                  ticketsFiltrados.map(ticket => (
+                    <div key={ticket.id} className={`ticket-item ${ticket.status.toLowerCase()}`}>
+                      <input
+                        type="checkbox"
+                        checked={selectedTickets.includes(ticket.id)}
+                        onChange={() => handleSelecionarTicket(ticket.id)}
+                      />
+                      <div className="ticket-info">
+                        <div className="ticket-principal">
+                          <span className="placa">
+                            <CarOutlined style={{ marginRight: 4 }} />
+                            {ticket.placa}
+                          </span>
+                          <span className={`status ${ticket.status.toLowerCase()}`}>
+                            {ticket.status === 'ABERTO' ? (
+                              <ClockCircleOutlined style={{ marginRight: 4 }} />
+                            ) : (
+                              <CheckCircleOutlined style={{ marginRight: 4 }} />
+                            )}
+                            {ticket.status}
+                          </span>
+                          <span className={`tipo ${ticket.tipo.toLowerCase()}`}>
+                            {ticket.tipo === 'MENSALISTA' ? (
+                              <UserOutlined style={{ marginRight: 4 }} />
+                            ) : (
+                              <CarOutlined style={{ marginRight: 4 }} />
+                            )}
+                            {ticket.tipo}
+                          </span>
+                        </div>
+                        {ticket.tipo === 'MENSALISTA' && ticket.mensalista && (
+                          <div className="mensalista">
+                            <UserOutlined style={{ marginRight: 4 }} />
+                            {ticket.mensalista.nome}
+                          </div>
+                        )}
+                        <div className="ticket-detalhes">
+                          <span>
+                            <CarOutlined style={{ marginRight: 4 }} />
+                            Modelo: {ticket.modelo}
+                          </span>
+                          <span>
+                            <ClockCircleOutlined style={{ marginRight: 4 }} />
+                            Entrada: {formatarData(ticket.hora_entrada)}
+                          </span>
+                          {ticket.hora_saida && (
+                            <span>
+                              <CheckCircleOutlined style={{ marginRight: 4 }} />
+                              Saída: {formatarData(ticket.hora_saida)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {ticketsFiltrados.length > 0 && (
+                <div className="modal-actions">
+                  <button
+                    className="btn-remover"
+                    onClick={handleRemoverSelecionados}
+                    disabled={selectedTickets.length === 0 || loading}
+                  >
+                    {loading ? (
+                      <>
+                        <LoadingOutlined style={{ marginRight: 8 }} />
+                        Removendo...
+                      </>
+                    ) : (
+                      <>
+                        <CloseCircleOutlined style={{ marginRight: 8 }} />
+                        Remover Selecionados
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <ConfirmacaoModal
+        isOpen={showConfirmacao}
+        titulo="Confirmar Remoção"
+        mensagem={`Tem certeza que deseja remover ${selectedTickets.length} ticket(s)? Esta ação não pode ser desfeita.`}
+        tipo="aviso"
+        textoBotaoConfirmar="Remover"
+        textoBotaoCancelar="Cancelar"
+        onConfirmar={confirmarRemocao}
+        onCancelar={() => setShowConfirmacao(false)}
+      />
+    </>
   );
 };
 

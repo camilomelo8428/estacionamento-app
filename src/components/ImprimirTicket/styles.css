@@ -1,153 +1,128 @@
 /* Estilos gerais */
 .ticket-impressao {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
+  width: 70mm; /* Reduzido para garantir margem de segurança */
   margin: 0 auto;
-  box-sizing: border-box;
+  padding: 0;
+  background: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .ticket-content {
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  background: #fff;
-  min-height: 400px;
+  text-align: center;
+  width: 100%;
 }
 
 .ticket-header {
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 0 10px;
+  margin-bottom: 2mm;
+  padding-bottom: 2mm;
+  border-bottom: 1px dashed #000;
+  width: 100%;
 }
 
 .ticket-header h1 {
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 10px;
-  word-wrap: break-word;
+  font-size: 14px;
+  margin: 0 0 1mm;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ticket-header p {
-  color: #666;
-  margin: 5px 0;
-  font-size: 14px;
-  word-wrap: break-word;
+  font-size: 12px;
+  margin: 0.5mm 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ticket-info {
-  margin: 20px 0;
-  padding: 0 10px;
+  margin: 2mm 0;
+  text-align: left;
+  width: 100%;
 }
 
 .ticket-info h2 {
+  font-size: 12px;
   text-align: center;
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 20px;
-  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
-  padding: 8px 0;
-  border-bottom: 1px dashed #ddd;
+  margin: 0.5mm 0;
+  width: 100%;
 }
 
 .info-row .label {
-  font-weight: bold;
-  color: #666;
-  font-size: 14px;
+  width: 35%;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .info-row .value {
-  color: #333;
+  width: 65%;
   text-align: right;
-  font-size: 14px;
-  word-wrap: break-word;
-  max-width: 60%;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ticket-footer {
+  margin-top: 2mm;
+  padding-top: 2mm;
+  border-top: 1px dashed #000;
   text-align: center;
-  margin-top: 20px;
-  padding: 20px 10px;
-  border-top: 1px solid #ddd;
+  width: 100%;
 }
 
 .ticket-footer p {
-  color: #666;
-  font-size: 14px;
+  font-size: 10px;
+  margin: 0.5mm 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.print-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.print-method {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
-  min-width: 150px;
-  height: 44px;
-  font-size: 16px;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.print-method:focus {
-  outline: none;
-  border-color: #1976d2;
-}
-
-.btn-imprimir,
-.btn-download {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 120px;
+.ticket-numero {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 2mm;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-imprimir {
-  background-color: #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background: #2196F3;
   color: white;
   border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.btn-imprimir:hover:not(:disabled) {
-  background-color: #1565c0;
-}
-
-.btn-imprimir:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.btn-download {
-  background-color: #2e7d32;
-  color: white;
-  border: none;
-}
-
-.btn-download:hover {
-  background-color: #1b5e20;
+.btn-imprimir:hover {
+  background: #1976D2;
 }
 
 /* Estilos específicos para impressão */
@@ -170,119 +145,40 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 80mm;
-    padding: 5mm;
-    margin: 0;
-    box-shadow: none;
-    min-height: auto;
-  }
-
-  .ticket-content {
-    border: none;
+    width: 70mm;
+    margin: 0 auto;
     padding: 0;
-    margin: 0;
-    min-height: auto;
+    box-shadow: none;
+    border-radius: 0;
   }
 
-  .print-actions {
+  .btn-imprimir {
     display: none;
   }
 
   * {
-    font-family: 'Courier New', monospace !important;
-    color: #000 !important;
+    font-family: monospace !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .ticket-header h1 {
     font-size: 14px;
   }
 
-  .ticket-header p,
-  .info-row .label,
-  .info-row .value {
+  .ticket-header p {
     font-size: 12px;
   }
 
-  .ticket-info h2 {
+  .info-row {
     font-size: 12px;
   }
 
   .ticket-footer p {
     font-size: 10px;
   }
-}
 
-/* Ajustes para dispositivos móveis */
-@media (max-width: 480px) {
-  .ticket-impressao {
-    margin: 10px;
-    padding: 15px;
-    max-width: 100%;
-  }
-
-  .ticket-content {
-    padding: 10px;
-    min-height: 350px;
-  }
-
-  .print-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .print-method,
-  .btn-imprimir,
-  .btn-download {
-    width: 100%;
-  }
-
-  .ticket-header h1 {
-    font-size: 16px;
-  }
-
-  .ticket-info h2 {
-    font-size: 14px;
-  }
-
-  .info-row .label,
-  .info-row .value {
-    font-size: 13px;
-  }
-}
-
-/* Suporte para tema escuro */
-@media (prefers-color-scheme: dark) {
-  .ticket-impressao {
-    background: #1a1a1a;
-  }
-
-  .ticket-content {
-    background: #1a1a1a;
-    border-color: #333;
-  }
-
-  .ticket-header h1 {
-    color: #fff;
-  }
-
-  .ticket-header p,
-  .info-row .label,
-  .info-row .value,
-  .ticket-footer p {
-    color: #ccc;
-  }
-
-  .info-row {
-    border-bottom-color: #333;
-  }
-
-  .ticket-footer {
-    border-top-color: #333;
-  }
-
-  .print-method {
-    background: #2a2a2a;
-    border-color: #333;
-    color: #fff;
+  .ticket-numero {
+    font-size: 12px;
   }
 } 

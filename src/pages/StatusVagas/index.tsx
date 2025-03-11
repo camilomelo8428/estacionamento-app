@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../services/supabase';
 import { Spin } from 'antd';
 import { 
-  CarOutlined, 
+  CarOutlined,
   LoadingOutlined,
   CarFilled,
   RocketOutlined,
   ThunderboltOutlined,
-  BankOutlined
+  BankOutlined,
+  TruckOutlined,
+  CarTwoTone,
+  SafetyCertificateOutlined,
+  ThunderboltFilled
 } from '@ant-design/icons';
 import './styles.css';
 
@@ -30,11 +34,28 @@ const ordemCategorias = ['Veículos pequenos', 'Veículos Grandes', 'Veículos e
 
 const getIconeCategoria = (nome: string) => {
   const nomeLower = nome.toLowerCase();
-  if (nomeLower.includes('pequenos')) return <CarOutlined />;
-  if (nomeLower.includes('grandes')) return <BankOutlined />;
-  if (nomeLower.includes('especiais')) return <RocketOutlined />;
-  if (nomeLower.includes('motos')) return <ThunderboltOutlined />;
-  return <CarOutlined />;
+  if (nomeLower.includes('pequenos')) {
+    return <CarTwoTone twoToneColor="#52c41a" style={{ fontSize: '24px' }} />;
+  }
+  if (nomeLower.includes('grandes')) {
+    return <TruckOutlined style={{ fontSize: '24px', color: '#1890ff' }} />;
+  }
+  if (nomeLower.includes('especiais')) {
+    return <SafetyCertificateOutlined style={{ fontSize: '24px', color: '#722ed1' }} />;
+  }
+  if (nomeLower.includes('motos')) {
+    return <ThunderboltFilled style={{ fontSize: '24px', color: '#fa8c16' }} />;
+  }
+  return <CarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />;
+};
+
+const getTipoCategoria = (nome: string): string => {
+  const nomeLower = nome.toLowerCase();
+  if (nomeLower.includes('pequenos')) return 'pequenos';
+  if (nomeLower.includes('grandes')) return 'grandes';
+  if (nomeLower.includes('especiais')) return 'especiais';
+  if (nomeLower.includes('motos')) return 'motos';
+  return 'outros';
 };
 
 const StatusVagas: React.FC = () => {
@@ -139,9 +160,10 @@ const StatusVagas: React.FC = () => {
         {categorias.map((categoria) => {
           const vagasDisponiveis = categoria.vagas.filter((vaga) => vaga.status === 'LIVRE').length;
           const totalVagas = categoria.vagas.length;
+          const tipoCategoria = getTipoCategoria(categoria.nome);
 
           return (
-            <div key={categoria.id} className="categoria-section">
+            <div key={categoria.id} className="categoria-section" data-tipo={tipoCategoria}>
               <div className="categoria-header">
                 <div className="categoria-titulo">
                   <div className="categoria-icone">

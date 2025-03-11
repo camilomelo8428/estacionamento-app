@@ -113,12 +113,49 @@
   border: 2px solid var(--border-color);
   color: var(--primary-color);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.categoria-icone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .categoria-section:hover .categoria-icone {
-  background: var(--primary-color);
-  color: white;
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg);
+}
+
+.categoria-section:hover .categoria-icone::before {
+  opacity: 1;
+}
+
+/* Estilos específicos para cada tipo de categoria */
+.categoria-section[data-tipo="pequenos"] .categoria-icone {
+  background: linear-gradient(135deg, #f6ffed, #d9f7be);
+  border-color: #52c41a;
+}
+
+.categoria-section[data-tipo="grandes"] .categoria-icone {
+  background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+  border-color: #1890ff;
+}
+
+.categoria-section[data-tipo="especiais"] .categoria-icone {
+  background: linear-gradient(135deg, #f9f0ff, #efdbff);
+  border-color: #722ed1;
+}
+
+.categoria-section[data-tipo="motos"] .categoria-icone {
+  background: linear-gradient(135deg, #fff7e6, #ffd591);
+  border-color: #fa8c16;
 }
 
 .categoria-header h2 {

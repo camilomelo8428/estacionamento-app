@@ -1,0 +1,124 @@
+.confirmacao-modal {
+  max-width: 400px;
+  width: 95%;
+  animation: modalEntrada 0.3s ease;
+}
+
+.confirmacao-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.confirmacao-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.confirmacao-header .icone {
+  font-size: 2rem;
+}
+
+.icone.sucesso {
+  color: #52c41a;
+}
+
+.icone.erro {
+  color: #ff4d4f;
+}
+
+.icone.aviso {
+  color: #faad14;
+}
+
+.confirmacao-mensagem {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.confirmacao-mensagem p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.confirmacao-acoes {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-confirmar {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  color: #ffffff;
+}
+
+.btn-confirmar.sucesso {
+  background: linear-gradient(145deg, #52c41a, #389e0d);
+}
+
+.btn-confirmar.erro {
+  background: linear-gradient(145deg, #ff4d4f, #cf1322);
+}
+
+.btn-confirmar.aviso {
+  background: linear-gradient(145deg, #faad14, #d48806);
+}
+
+.btn-confirmar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cancelar {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.btn-cancelar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+@keyframes modalEntrada {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .confirmacao-modal {
+    margin: 1rem;
+  }
+
+  .confirmacao-acoes {
+    flex-direction: column;
+  }
+
+  .btn-confirmar,
+  .btn-cancelar {
+    width: 100%;
+  }
+} 

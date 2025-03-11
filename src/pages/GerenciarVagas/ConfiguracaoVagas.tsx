@@ -74,54 +74,61 @@ const ConfiguracaoVagas: React.FC<ConfiguracaoVagasProps> = ({ onClose, onUpdate
 
   if (loading) {
     return (
-      <div className="configuracao-vagas-modal">
-        <div className="modal-content">
-          <h2>Carregando...</h2>
+      <div className="modal-overlay">
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Carregando...</h2>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="configuracao-vagas-modal">
-      <div className="modal-content">
-        <h2>Configurar Quantidade de Vagas</h2>
-        
-        <div className="categorias-list">
-          {categorias.map(categoria => (
-            <div key={categoria.id} className="categoria-item">
-              <div className="categoria-info">
-                <label>{categoria.nome}</label>
-                {categoria.vagasOcupadas ? (
-                  <span className="vagas-ocupadas">
-                    ({categoria.vagasOcupadas} vagas ocupadas)
+    <div className="modal-overlay">
+      <div className="modal">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2>Configurar Quantidade de Vagas</h2>
+            <button className="btn-close" onClick={onClose}>×</button>
+          </div>
+          
+          <div className="categorias-list">
+            {categorias.map(categoria => (
+              <div key={categoria.id} className="categoria-item">
+                <div className="categoria-info">
+                  <label>{categoria.nome}</label>
+                  {categoria.vagasOcupadas ? (
+                    <span className="vagas-ocupadas">
+                      ({categoria.vagasOcupadas} vagas ocupadas)
+                    </span>
+                  ) : null}
+                </div>
+                <div className="input-group">
+                  <span className="vagas-total">
+                    Total: {categoria.vagas} vagas
                   </span>
-                ) : null}
+                  <button
+                    className="btn-ajustar"
+                    onClick={() => handleAjustarLimite(categoria)}
+                    disabled={loading}
+                  >
+                    Ajustar
+                  </button>
+                </div>
               </div>
-              <div className="input-group">
-                <span className="vagas-total">
-                  Total: {categoria.vagas} vagas
-                </span>
-                <button
-                  className="btn-ajustar"
-                  onClick={() => handleAjustarLimite(categoria)}
-                  disabled={loading}
-                >
-                  Ajustar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="modal-actions">
-          <button 
-            className="btn-fechar" 
-            onClick={onClose}
-            disabled={loading}
-          >
-            Fechar
-          </button>
+          <div className="modal-actions">
+            <button 
+              className="btn-fechar" 
+              onClick={onClose}
+              disabled={loading}
+            >
+              Fechar
+            </button>
+          </div>
         </div>
       </div>
 

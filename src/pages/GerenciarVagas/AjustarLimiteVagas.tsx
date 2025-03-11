@@ -50,45 +50,54 @@ const AjustarLimiteVagas: React.FC<AjustarLimiteVagasProps> = ({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Ajustar Limite de Vagas</h2>
-        <p>Categoria: {categoriaAtual.nome}</p>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="novoLimite">Novo limite de vagas:</label>
-            <input
-              type="number"
-              id="novoLimite"
-              min="1"
-              value={novoLimite}
-              onChange={(e) => setNovoLimite(parseInt(e.target.value) || 0)}
-              disabled={salvando}
-            />
-            <small className="form-help">
-              Digite o número desejado de vagas para esta categoria.
-              O sistema não permitirá reduzir o limite abaixo do número de vagas atualmente ocupadas.
-            </small>
+      <div className="modal">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2>Ajustar Limite de Vagas</h2>
+            <button className="btn-close" onClick={onClose}>×</button>
           </div>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="categoria-atual">
+              <h3>Categoria: {categoriaAtual.nome}</h3>
+              <p>Limite atual: {categoriaAtual.vagas} vagas</p>
+            </div>
 
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn-cancelar"
-              onClick={onClose}
-              disabled={salvando}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn-salvar"
-              disabled={salvando || novoLimite < 1 || novoLimite === categoriaAtual.vagas}
-            >
-              {salvando ? 'Salvando...' : 'Salvar'}
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label htmlFor="novoLimite">Novo limite de vagas:</label>
+              <input
+                type="number"
+                id="novoLimite"
+                min="1"
+                value={novoLimite}
+                onChange={(e) => setNovoLimite(parseInt(e.target.value) || 0)}
+                disabled={salvando}
+              />
+              <small className="form-help">
+                Digite o número desejado de vagas para esta categoria.
+                O sistema não permitirá reduzir o limite abaixo do número de vagas atualmente ocupadas.
+              </small>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-fechar"
+                onClick={onClose}
+                disabled={salvando}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn-ajustar"
+                disabled={salvando || novoLimite < 1 || novoLimite === categoriaAtual.vagas}
+              >
+                {salvando ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
