@@ -1,17 +1,14 @@
 {
   "version": 2,
   "public": true,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build",
-        "buildCommand": "set \"DISABLE_ESLINT_PLUGIN=true\" && npm run build",
-        "installCommand": "npm install"
-      }
-    }
-  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "create-react-app",
+  "outputDirectory": "build",
+  "env": {
+    "CI": "false",
+    "DISABLE_ESLINT_PLUGIN": "true"
+  },
   "routes": [
     {
       "src": "/static/(.*)",
@@ -45,7 +42,5 @@
   "github": {
     "enabled": true,
     "silent": false
-  },
-  "framework": "create-react-app",
-  "outputDirectory": "build"
+  }
 } 
