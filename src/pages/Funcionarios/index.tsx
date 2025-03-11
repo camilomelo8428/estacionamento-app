@@ -3,6 +3,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useError } from '../../contexts/ErrorContext';
 import { funcionariosService } from '../../services/funcionariosService';
 import { Database } from '../../types/supabase';
+import { 
+  PoweroffOutlined, 
+  DeleteOutlined, 
+  UserAddOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  PlusOutlined
+} from '@ant-design/icons';
 import './styles.css';
 
 type Funcionario = Database['public']['Tables']['funcionarios']['Row'];
@@ -175,7 +183,7 @@ const Funcionarios: React.FC = () => {
       <div className="funcionarios-header">
         <h1>Gerenciar Funcionários</h1>
         <button className="btn-novo-funcionario" onClick={() => setShowModal(true)}>
-          <span>+</span>
+          <PlusOutlined />
           Novo Funcionário
         </button>
       </div>
@@ -208,13 +216,17 @@ const Funcionarios: React.FC = () => {
                   <button
                     className="btn-desativar"
                     onClick={() => handleStatusChange(funcionario.id, funcionario.ativo)}
+                    title={funcionario.ativo ? 'Desativar funcionário' : 'Ativar funcionário'}
                   >
+                    <PoweroffOutlined style={{ marginRight: '8px' }} />
                     {funcionario.ativo ? 'Desativar' : 'Ativar'}
                   </button>
                   <button
                     className="btn-remover"
                     onClick={() => handleRemover(funcionario.id)}
+                    title="Remover funcionário"
                   >
+                    <DeleteOutlined style={{ marginRight: '8px' }} />
                     Remover
                   </button>
                 </td>
@@ -300,6 +312,7 @@ const Funcionarios: React.FC = () => {
 
               <div className="form-actions">
                 <button type="submit" className="btn-salvar" disabled={submitting}>
+                  <SaveOutlined style={{ marginRight: '8px' }} />
                   {submitting ? 'Cadastrando...' : 'Cadastrar'}
                 </button>
                 <button
@@ -308,6 +321,7 @@ const Funcionarios: React.FC = () => {
                   onClick={() => setShowModal(false)}
                   disabled={submitting}
                 >
+                  <CloseOutlined style={{ marginRight: '8px' }} />
                   Cancelar
                 </button>
               </div>

@@ -22,19 +22,27 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background: linear-gradient(145deg, #4CAF50, #43A047);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+}
+
+.btn-novo-funcionario span {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-right: 4px;
 }
 
 .btn-novo-funcionario:hover {
-  background-color: #303f9f;
+  background: linear-gradient(145deg, #43A047, #388E3C);
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
 .table-container {
@@ -170,15 +178,24 @@
 .btn-close {
   background: none;
   border: none;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.75rem;
   cursor: pointer;
   padding: 0.5rem;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  line-height: 1;
 }
 
 .btn-close:hover {
-  color: var(--text-primary);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
 }
 
 .form-group {
@@ -227,31 +244,105 @@
   flex: 1;
   padding: 0.75rem;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
 }
 
 .btn-salvar {
-  background-color: var(--primary-color);
+  background: linear-gradient(145deg, #4CAF50, #43A047);
   color: white;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
 }
 
-.btn-salvar:hover {
-  background-color: #303f9f;
+.btn-salvar:hover:not(:disabled) {
+  background: linear-gradient(145deg, #43A047, #388E3C);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-salvar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-cancelar {
-  background-color: transparent;
-  border: 1px solid var(--text-secondary);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.btn-cancelar:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+.btn-cancelar:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.btn-cancelar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.acoes-funcionario {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-desativar,
+.btn-remover {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.btn-desativar {
+  background: linear-gradient(145deg, #2196f3, #1976d2);
+  color: white;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.btn-desativar:hover {
+  background: linear-gradient(145deg, #1976d2, #1565c0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.btn-remover {
+  background: linear-gradient(145deg, #f44336, #d32f2f);
+  color: white;
+  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+}
+
+.btn-remover:hover {
+  background: linear-gradient(145deg, #d32f2f, #c62828);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
 }
 
 @media (max-width: 768px) {
@@ -293,5 +384,66 @@
 
   .form-actions {
     flex-direction: column;
+  }
+
+  .acoes-funcionario {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn-desativar,
+  .btn-remover {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .btn-novo-funcionario {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-salvar,
+  .btn-cancelar {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+/* Ajustes para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .btn-desativar,
+  .btn-remover {
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+  }
+
+  .btn-desativar:hover,
+  .btn-remover:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-desativar:active,
+  .btn-remover:active {
+    transform: scale(0.98);
+  }
+
+  .btn-novo-funcionario:hover,
+  .btn-salvar:hover,
+  .btn-cancelar:hover,
+  .btn-close:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-novo-funcionario:active,
+  .btn-salvar:active,
+  .btn-cancelar:active {
+    transform: scale(0.98);
+  }
+
+  .btn-close:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
   }
 } 
