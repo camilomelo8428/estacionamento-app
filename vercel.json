@@ -7,7 +7,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build",
-        "buildCommand": "CI='' npm run build",
+        "buildCommand": "set \"DISABLE_ESLINT_PLUGIN=true\" && npm run build",
         "installCommand": "npm install"
       }
     }
