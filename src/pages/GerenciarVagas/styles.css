@@ -322,9 +322,9 @@
 
 .vaga-button:hover::before {
   left: 100%;
-}
+  }
 
-.vaga-button .placa {
+  .vaga-button .placa {
   font-size: 0.9rem;
   margin-top: 0.5rem;
   padding: 0.25rem 0.5rem;
