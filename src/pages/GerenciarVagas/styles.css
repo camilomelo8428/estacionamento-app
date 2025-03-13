@@ -287,19 +287,19 @@
 }
 
 .vaga-button.livre {
-  background: linear-gradient(145deg, #4caf50, #45a049);
+  background: linear-gradient(145deg, #0ffc17, #8ac502);
   animation: pulseGreen 2s infinite;
-  border: 2px solid rgba(76, 175, 80, 0.3);
+  border: 2px solid rgb(132, 175, 76);
 }
 
 .vaga-button.ocupada {
-  background: linear-gradient(145deg, #f44336, #e53935);
+  background: linear-gradient(145deg, #ff1100, #e53935);
   animation: pulseRed 2s infinite;
   border: 2px solid rgba(244, 67, 54, 0.3);
 }
 
 .vaga-button.mensalista {
-  background: linear-gradient(145deg, #2196f3, #1e88e5);
+  background: linear-gradient(145deg, #008cff, #02defc);
   animation: pulseBlue 2s infinite;
   border: 2px solid rgba(33, 150, 243, 0.3);
 }

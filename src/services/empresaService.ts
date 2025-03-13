@@ -61,30 +61,5 @@ export const empresaService = {
       console.error('Erro ao salvar informações da empresa:', error);
       throw new Error('Erro ao salvar informações da empresa');
     }
-  },
-
-  atualizarEmpresa: async (dadosEmpresa: Partial<EmpresaData>) => {
-    const { data, error } = await supabase
-      .from('empresa')
-      .update({
-        nome: dadosEmpresa.nome,
-        cnpj: dadosEmpresa.cnpj,
-        endereco: dadosEmpresa.endereco,
-        telefone: dadosEmpresa.telefone,
-        email: dadosEmpresa.email,
-        qr_code_pix: dadosEmpresa.qr_code_pix,
-        chave_pix: dadosEmpresa.chave_pix,
-        nome_beneficiario_pix: dadosEmpresa.nome_beneficiario_pix,
-        cidade_beneficiario_pix: dadosEmpresa.cidade_beneficiario_pix
-      })
-      .eq('id', 1)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error('Erro ao atualizar dados da empresa');
-    }
-
-    return { success: true, data };
   }
 }; 

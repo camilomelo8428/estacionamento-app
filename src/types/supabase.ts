@@ -107,44 +107,29 @@ export type Database = {
         Row: {
           id: string
           nome: string
-          cnpj: string | null
-          endereco: string | null
-          telefone: string | null
-          email: string | null
-          qr_code_pix: string | null
-          chave_pix: string | null
-          nome_beneficiario_pix: string | null
-          cidade_beneficiario_pix: string | null
+          cnpj: string
+          endereco: string
+          telefone: string
+          email: string
+          mensagem: string
           created_at: string
           updated_at: string
         }
         Insert: {
-          id?: string
           nome: string
-          cnpj?: string | null
-          endereco?: string | null
-          telefone?: string | null
-          email?: string | null
-          qr_code_pix?: string | null
-          chave_pix?: string | null
-          nome_beneficiario_pix?: string | null
-          cidade_beneficiario_pix?: string | null
-          created_at?: string
-          updated_at?: string
+          cnpj: string
+          endereco: string | null
+          telefone: string | null
+          email: string
+          mensagem?: string | null
         }
         Update: {
-          id?: string
           nome?: string
-          cnpj?: string | null
+          cnpj?: string
           endereco?: string | null
           telefone?: string | null
-          email?: string | null
-          qr_code_pix?: string | null
-          chave_pix?: string | null
-          nome_beneficiario_pix?: string | null
-          cidade_beneficiario_pix?: string | null
-          created_at?: string
-          updated_at?: string
+          email?: string
+          mensagem?: string | null
         }
       }
       funcionarios: {
@@ -254,23 +239,8 @@ export type CategoriaUpdate = Database['public']['Tables']['categorias']['Update
 export type FuncionarioInsert = Database['public']['Tables']['funcionarios']['Insert']
 export type FuncionarioUpdate = Database['public']['Tables']['funcionarios']['Update']
 
-export interface EmpresaData {
-  id: string;
-  nome: string;
-  cnpj: string | null;
-  endereco: string | null;
-  telefone: string | null;
-  email: string | null;
-  qr_code_pix: string | null;
-  chave_pix: string | null;
-  nome_beneficiario_pix: string | null;
-  cidade_beneficiario_pix: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export type EmpresaInsert = Omit<EmpresaData, 'id' | 'created_at' | 'updated_at'>;
-export type EmpresaUpdate = Partial<EmpresaInsert>;
+export type EmpresaInsert = Database['public']['Tables']['empresa']['Insert']
+export type EmpresaUpdate = Database['public']['Tables']['empresa']['Update']
 
 export type TicketInsert = Database['public']['Tables']['tickets']['Insert']
 export type TicketUpdate = Database['public']['Tables']['tickets']['Update']
